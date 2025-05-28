@@ -1,6 +1,8 @@
 module iso8583-desktop-tool
 
-go 1.23
+go 1.22.0
+
+toolchain go1.24.3
 
 require github.com/wailsapp/wails/v2 v2.10.1
 

@@ -1,11 +1,14 @@
 {
-  "$schema": "https://wails.io/schemas/config.v2.json",
   "name": "iso8583-desktop-tool",
   "outputfilename": "iso8583-desktop-tool",
+  "assetdir": "frontend/out",
   "frontend:install": "npm install",
-  "frontend:build": "npm run build",
+  "frontend:build": "npm run export",
+  "frontend:dev": "echo dev",
+  "frontend:dev:build": "echo dev",
   "frontend:dev:watcher": "npm run dev",
-  "frontend:dev:serverUrl": "auto",
+  "frontend:dev:serverUrl": "http://localhost:3000",
+  "wailsjsdir": "frontend/wailsjs",
   "author": {
     "name": "nguynqh",
     "email": "mequanghieu9@gmail.com"
