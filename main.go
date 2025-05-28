@@ -7,11 +7,12 @@ import (
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/logger"
 	"github.com/wailsapp/wails/v2/pkg/options"
+	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"github.com/wailsapp/wails/v2/pkg/options/mac"
 	"github.com/wailsapp/wails/v2/pkg/options/windows"
 )
 
-//go:embed all:frontend/out frontend/out/_next/static/*/* frontend/out/_next/static/*/*/*
+//go:embed all:frontend/out
 var assets embed.FS
 
 //go:embed build/appicon.png
@@ -36,7 +37,9 @@ func main() {
 		StartHidden:       false,
 		HideWindowOnClose: false,
 		BackgroundColour:  &options.RGBA{R: 255, G: 255, B: 255, A: 255},
-		Assets:            assets,
+		AssetServer:       &assetserver.Options{
+			Assets: assets,
+		},
 		Menu:              nil,
 		Logger:            nil,
 		LogLevel:          logger.DEBUG,
@@ -55,6 +58,7 @@ func main() {
 			DisableWindowIcon:    false,
 			// DisableFramelessWindowDecorations: false,
 			WebviewUserDataPath: "",
+			ZoomFactor: 1.0,
 		},
 		// Mac platform specific options
 		Mac: &mac.Options{
@@ -66,7 +70,7 @@ func main() {
 				UseToolbar:                 false,
 				HideToolbarSeparator:       true,
 			},
-			Appearance:           mac.NSAppearanceNameDarkAqua,
+			Appearance:           mac.DefaultAppearance,
 			WebviewIsTransparent: true,
 			WindowIsTranslucent:  true,
 			About: &mac.AboutInfo{
