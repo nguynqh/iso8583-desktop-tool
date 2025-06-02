@@ -8,7 +8,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: HTTP POST Request
-        uses: fjogeleit/http-request-action@v1
-        with:
-          url: '${secrets.API_BUILD_ISO8583_CLOUDFLARE}'
-          method: 'POST'
+        run: |
+          curl -X POST "${{ secrets.API_BUILD_ISO8583_CLOUDFLARE }}"
