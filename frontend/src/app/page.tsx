@@ -10,9 +10,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 // import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 // import { Badge } from "@/components/ui/badge"
-// import { Alert, AlertDescription } from "@/components/ui/alert"
 
 
 import {
@@ -23,10 +23,10 @@ import {
     Copy,
     Play,
     Trash2,
+    AlertTriangle,
+    XCircle,
 //   Download,
 //   CheckCircle,
-//   XCircle,
-//   AlertTriangle,
 } from "lucide-react"
 
 import { toast } from "@/hooks/use-toast"
@@ -34,6 +34,8 @@ import { toast } from "@/hooks/use-toast"
 // import { SettingsDialog } from "@/components/settings-dialog"
 import { UserGuideDialog } from "@/components/user-guide-dialog"
 
+import { Greet } from "../../wailsjs/go/main/App";
+import { set } from "date-fns";
 
 interface ParsedField {
   id: string
@@ -48,11 +50,26 @@ interface ParsedField {
 
 export default function ISO8583Parser() {
 
-    const [parsedFields, setParsedFields] = useState<ParsedField[]>([])
+    const [name, setName] = useState("")
+    const [greetValue, setGreetValue] = useState("")
+
+    const [parsedFields, setParsedFields] = useState<string[]>([])
     const [inputLog, setInputLog] = useState("")
     const [isProcessing, setIsProcessing] = useState(false)
     const [showTextarea, setShowTextarea] = useState(false);
     const [userGuideOpen, setUserGuideOpen] = useState(false)
+    const [validationResults, setValidationResults] = useState<{
+        isValid: boolean
+        errors: string[]
+        warnings: string[]
+    }>({ isValid: true, errors: [], warnings: [] })
+
+
+    const updateName = (e:any) => setName("");
+    const handleGreet = () => {
+        setGreetValue('')
+        Greet(greetValue).then(setGreetValue)
+    }
 
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0]
@@ -81,6 +98,18 @@ export default function ISO8583Parser() {
         setTimeout(() => {
         // Call logic to parse the log here
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        // setValidationResults({
+        //     isValid: true,
+        //     errors: ['Không tìm thấy trường MTI trong log'],
+        //     warnings: [],
+        // })
+
+        setParsedFields(filterISO(inputLog))
+
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         setIsProcessing(false)
         toast({
             title: "Hoàn thành",
@@ -89,6 +118,13 @@ export default function ISO8583Parser() {
         }, 2000)
     }
 
+    function filterISO(input: string): string[] {
+        var f1 = input.split(/\r?\n/);
+        console.log("f1", f1)
+        var f2 = f1.filter(line => line.includes("MTI"));
+        console.log("f2", f2)
+        return f2
+    }
 
 
     return (
@@ -195,7 +231,12 @@ export default function ISO8583Parser() {
                         <Card>
                             <CardHeader>
                                 <CardTitle>Nhập Log ISO 8583</CardTitle>
-                                <Button className="relative inline-flex w-44">Test function call from Go</Button>
+                                <div className="flex">
+                                    <Button className="relative inline-flex w-44 " onClick={handleGreet}>Test function call from Go</Button>
+                                    <span className=" pl-10 inline-flex items-center justify-center text-sm text-gray-500" onChange={updateName}>
+                                        {greetValue}
+                                    </span>
+                                </div>
                                 <CardDescription>Nhập log cần phân tích thông qua các cách sau</CardDescription>
                             </CardHeader>
                             <CardContent>
@@ -281,7 +322,7 @@ export default function ISO8583Parser() {
                                     setInputLog("")
                                     setShowTextarea(false)
                                     setParsedFields([])
-                                    // setValidationResults({ isValid: true, errors: [], warnings: [] })
+                                    setValidationResults({ isValid: true, errors: [], warnings: [] })
                                     }}
                                 >
                                     <Trash2 className="h-4 w-4 mr-2" />
@@ -289,10 +330,56 @@ export default function ISO8583Parser() {
                                 </Button>
                                 </div>
                             </CardContent>
+                        </Card>
+                        
+                        {/* Results */}
+                            {/* Validation result */}
+                        {(validationResults.errors.length > 0 || validationResults.warnings.length > 0) && (
+                            <div className="space-y-2">
+                                {validationResults.errors.map((error, index) => (
+                                <Alert key={`error-${index}`} variant="destructive">
+                                    <XCircle className="h-4 w-4" />
+                                    <AlertDescription>{error}</AlertDescription>
+                                </Alert>
+                                ))}
+
+                                {validationResults.warnings.map((warning, index) => (
+                                <Alert key={`warning-${index}`}>
+                                    <AlertTriangle className="h-4 w-4" />
+                                    <AlertDescription>{warning}</AlertDescription>
+                                </Alert>
+                                ))}
+                            </div>
+                        )}
+
+                            {/* Parsered field */}
+                        {parsedFields.length > 0 && (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Kết quả phân tích</CardTitle>
+                                    <CardDescription>Hiển thị {parsedFields.length} message ISO8583 đã được tách từ log</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-4">
+                                        {parsedFields.map((field, idx) => (
+                                            <div key={field} className="p-4 bg-gray-50 rounded-md shadow-sm">
+                                                {parsedFields.length > 1 && (
+                                                    <div className="text-sm text-gray-500 mb-2">
+                                                        Message {idx + 1}
+                                                    </div>
+                                                )}
+                                                <div className="text-sm text-gray-700 break-words">{field}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </CardContent>
                             </Card>
+                        )}
                     </div>
                 </div>
             </div>
+
+
             <UserGuideDialog open={userGuideOpen} onOpenChange={setUserGuideOpen} />
         </div>
     )

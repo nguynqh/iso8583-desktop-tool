@@ -14,3 +14,16 @@ To build a redistributable, production mode package, use `wails build`.
 ## Demo site (Cloudflare Host)
 
 https://iso8583-desktop-tool.pages.dev/
+
+```
+iso8583-desktop-tool
+├─ app.go
+├─ build
+├─ frontend
+├─ go.mod
+├─ go.sum
+├─ main.go
+├─ README.md
+└─ wails.json
+
+```

@@ -25,7 +25,7 @@ func main() {
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:             "iso8583-desktop-tool",
-		Width:             1024,
+		Width:             1280,
 		Height:            768,
 		MinWidth:          1024,
 		MinHeight:         768,
