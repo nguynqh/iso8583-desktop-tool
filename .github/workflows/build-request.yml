@@ -1,0 +1,14 @@
+name: Send POST Request to auto build on CloudFlare
+
+on:
+  workflow_dispatch:
+
+jobs:
+  post_request:
+    runs-on: ubuntu-latest
+    steps:
+      - name: HTTP POST Request
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: '${secrets.CLOUDFLARE_BUILD_URL}'
+          method: 'POST'
