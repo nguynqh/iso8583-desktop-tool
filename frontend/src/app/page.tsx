@@ -121,7 +121,7 @@ export default function ISO8583Parser() {
     function filterISO(input: string): string[] {
         const f1 = input.split(/\r?\n/);
         console.log("f1", f1)
-        const f2 = f1.filter(line => line.includes("MTI"));
+        const f2 = f1.filter(line => line.includes("MTI") || line.includes("mti"));
         console.log("f2", f2)
         return f2
     }
