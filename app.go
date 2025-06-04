@@ -4,6 +4,8 @@ import (
 	// "context"
 	"context"
 	"fmt"
+	"regexp"
+	"strings"
 )
 
 // App struct
@@ -42,4 +44,20 @@ func (a *App) shutdown(ctx context.Context) {
 // Greet returns a greeting for the given name
 func (a *App) Greet(name string) string {
 	return fmt.Sprintf("Hello %s, It's show time!", name)
+}
+
+func (a *App) ParseLog(log string) []string {
+	// split line by regex
+	lines := regexp.MustCompile(`\r?\n`).Split(log, -1)
+	var result []string
+	for _, line := range lines {
+		line = strings.TrimSpace(line) // Loại bỏ dấu trắng và ký tự ẩn đầu/cuối
+		if len(line) == 0 {
+			continue
+		}
+		if strings.Contains(line, "MTI") || strings.Contains(line, "mti") {
+			result = append(result, line)
+		}
+	}
+	return result
 }

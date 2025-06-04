@@ -33,9 +33,9 @@ import { toast } from "@/hooks/use-toast"
 // import { set } from "date-fns";
 // import { SettingsDialog } from "@/components/settings-dialog"
 import { UserGuideDialog } from "@/components/user-guide-dialog"
-
-import { Greet } from "../../wailsjs/go/main/App";
 import { set } from "date-fns";
+
+import { ParseLog } from "../../wailsjs/go/main/App"
 
 interface ParsedField {
   id: string
@@ -50,9 +50,6 @@ interface ParsedField {
 
 export default function ISO8583Parser() {
 
-    const [name, setName] = useState("")
-    const [greetValue, setGreetValue] = useState("")
-
     const [parsedFields, setParsedFields] = useState<string[]>([])
     const [inputLog, setInputLog] = useState("")
     const [isProcessing, setIsProcessing] = useState(false)
@@ -64,12 +61,6 @@ export default function ISO8583Parser() {
         warnings: string[]
     }>({ isValid: true, errors: [], warnings: [] })
 
-
-    const updateName = (e:any) => setName("");
-    const handleGreet = () => {
-        setGreetValue('')
-        Greet(greetValue).then(setGreetValue)
-    }
 
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0]
@@ -95,7 +86,7 @@ export default function ISO8583Parser() {
         setIsProcessing(true)
 
         // Simulate processing
-        setTimeout(() => {
+        setTimeout(async () => {
         // Call logic to parse the log here
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -106,7 +97,11 @@ export default function ISO8583Parser() {
         //     warnings: [],
         // })
 
-        setParsedFields(filterISO(inputLog))
+        // setParsedFields(filterISO(inputLog))
+        setParsedFields(
+            await ParseLog(inputLog)
+            // filterISO(inputLog)
+        )
 
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -124,6 +119,22 @@ export default function ISO8583Parser() {
         const f2 = f1.filter(line => line.includes("MTI") || line.includes("mti"));
         console.log("f2", f2)
         return f2
+    }
+
+    function processLogLine(line: string): string[] {
+        // Tìm vị trí "MTI" đầu tiên (nên có ",,MTI" hoặc "MTI")
+        const mtiIdx = line.indexOf("MTI");
+        const prefixEndIdx = line.lastIndexOf(",,", mtiIdx);
+        let prefix;
+        if (prefixEndIdx !== -1) {
+            prefix = line.slice(0, prefixEndIdx);
+        } else {
+            // fallback nếu không có dấu ",,"
+            prefix = line.slice(0, mtiIdx);
+        }
+        // message là từ MTI trở đi
+        const message = line.slice(mtiIdx);
+        return [prefix.trim(), message.trim()];
     }
 
 
@@ -231,12 +242,12 @@ export default function ISO8583Parser() {
                         <Card>
                             <CardHeader>
                                 <CardTitle>Nhập Log ISO 8583</CardTitle>
-                                <div className="flex">
+                                {/* <div className="flex">
                                     <Button className="relative inline-flex w-44 " onClick={handleGreet}>Test function call from Go</Button>
                                     <span className=" pl-10 inline-flex items-center justify-center text-sm text-gray-500" onChange={updateName}>
                                         {greetValue}
                                     </span>
-                                </div>
+                                </div> */}
                                 <CardDescription>Nhập log cần phân tích thông qua các cách sau</CardDescription>
                             </CardHeader>
                             <CardContent>
@@ -357,20 +368,40 @@ export default function ISO8583Parser() {
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Kết quả phân tích</CardTitle>
-                                    <CardDescription>Hiển thị {parsedFields.length} message ISO8583 đã được tách từ log</CardDescription>
+                                    <CardDescription>
+                                        Hiển thị {parsedFields.length} message ISO8583 đã được tách từ log
+                                        <br />
+                                        {/* {openIdx !== null && (
+                                            <span className="text-blue-500">Đang mở message {openIdx + 1}</span>
+                                        )} */}
+                                    </CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="space-y-4">
-                                        {parsedFields.map((field, idx) => (
-                                            <div key={field} className="p-4 bg-gray-50 rounded-md shadow-sm">
-                                                {parsedFields.length > 1 && (
-                                                    <div className="text-sm text-gray-500 mb-2">
-                                                        Message {idx + 1}
+                                        {parsedFields.map((field, idx) => {
+                                            const splitFields = processLogLine(field);
+                                            return (
+                                                <div key={field} className="p-4 bg-gray-50 rounded-md shadow-sm">
+                                                    {parsedFields.length > 1 && (
+                                                        <div className="text-sm text-gray-500 mb-2">
+                                                            Message {idx + 1}
+                                                        </div>
+                                                    )}
+                                                    <div className="text-sm text-gray-700 break-words">
+                                                        <span className="ml-2">{splitFields[0]}</span>
+                                                        {/* <div className="whitespace-pre-line">{splitFields[1]}</div> */}
                                                     </div>
-                                                )}
-                                                <div className="text-sm text-gray-700 break-words">{field}</div>
-                                            </div>
-                                        ))}
+                                                </div>
+                                            );
+                                                // <div key={field} className="p-4 bg-gray-50 rounded-md shadow-sm">
+                                                //     {parsedFields.length > 1 && (
+                                                //         <div className="text-sm text-gray-500 mb-2">
+                                                //             Message {idx + 1}
+                                                //         </div>
+                                                //     )}
+                                                //     <div className="text-sm text-gray-700 break-words">{field}</div>
+                                                // </div>
+                                            })}
                                     </div>
                                 </CardContent>
                             </Card>
