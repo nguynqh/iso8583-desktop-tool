@@ -1,8 +1,8 @@
 package main
 
 import (
-	// "context"
 	"context"
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"strings"
@@ -56,8 +56,47 @@ func (a *App) ParseLog(log string) []string {
 			continue
 		}
 		if strings.Contains(line, "MTI") || strings.Contains(line, "mti") {
-			result = append(result, line)
+			mess := a.getMessage(line)
+			result = append(result, mess)
 		}
 	}
+
+	//  get message from log
+
 	return result
+}
+
+func (a *App) getMessage(line string) string {
+	switch {
+	case strings.Contains(line, "MTI"):
+		idx := strings.Index(line, "MTI")
+		if idx != -1 {
+			// Tìm vị trí " - [" cuối cùng
+			end := strings.LastIndex(line, "[")
+			if end != -1 {
+				return strings.TrimRight(line[idx:end], " ,-")
+			}
+			return strings.TrimRight(line[idx:], " ,-")
+		} else {
+			return ""
+		}
+	case strings.Contains(line, "mti"):
+		idx := strings.Index(line, `"mti"`)
+		if idx != -1 {
+			end := strings.LastIndex(line, "[")
+			rs := "{" + strings.TrimRight(line[idx:end], " -")
+			if validateJson(rs) {
+				return rs
+			} else {
+				return "Sai Json: " + rs
+			}
+		} else {
+			return ""
+		}
+	}
+	return ""
+}
+
+func validateJson(line string) bool {
+	return json.Unmarshal([]byte(line), new(interface{})) == nil
 }

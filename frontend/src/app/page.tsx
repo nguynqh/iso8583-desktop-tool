@@ -113,29 +113,29 @@ export default function ISO8583Parser() {
         }, 2000)
     }
 
-    function filterISO(input: string): string[] {
-        const f1 = input.split(/\r?\n/);
-        console.log("f1", f1)
-        const f2 = f1.filter(line => line.includes("MTI") || line.includes("mti"));
-        console.log("f2", f2)
-        return f2
-    }
+    // function filterISO(input: string): string[] {
+    //     const f1 = input.split(/\r?\n/);
+    //     console.log("f1", f1)
+    //     const f2 = f1.filter(line => line.includes("MTI") || line.includes("mti"));
+    //     console.log("f2", f2)
+    //     return f2
+    // }
 
-    function processLogLine(line: string): string[] {
-        // Tìm vị trí "MTI" đầu tiên (nên có ",,MTI" hoặc "MTI")
-        const mtiIdx = line.indexOf("MTI");
-        const prefixEndIdx = line.lastIndexOf(",,", mtiIdx);
-        let prefix;
-        if (prefixEndIdx !== -1) {
-            prefix = line.slice(0, prefixEndIdx);
-        } else {
-            // fallback nếu không có dấu ",,"
-            prefix = line.slice(0, mtiIdx);
-        }
-        // message là từ MTI trở đi
-        const message = line.slice(mtiIdx);
-        return [prefix.trim(), message.trim()];
-    }
+    // function processLogLine(line: string): string[] {
+    //     // Tìm vị trí "MTI" đầu tiên (nên có ",,MTI" hoặc "MTI")
+    //     const mtiIdx = line.indexOf("MTI");
+    //     const prefixEndIdx = line.lastIndexOf(",,", mtiIdx);
+    //     let prefix;
+    //     if (prefixEndIdx !== -1) {
+    //         prefix = line.slice(0, prefixEndIdx);
+    //     } else {
+    //         // fallback nếu không có dấu ",,"
+    //         prefix = line.slice(0, mtiIdx);
+    //     }
+    //     // message là từ MTI trở đi
+    //     const message = line.slice(mtiIdx);
+    //     return [prefix.trim(), message.trim()];
+    // }
 
 
     return (
@@ -378,30 +378,30 @@ export default function ISO8583Parser() {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="space-y-4">
-                                        {parsedFields.map((field, idx) => {
-                                            const splitFields = processLogLine(field);
-                                            return (
-                                                <div key={field} className="p-4 bg-gray-50 rounded-md shadow-sm">
+                                        {parsedFields.map((field, idx) => (
+                                            // const splitFields = processLogLine(field);
+                                            // return (
+                                            //     <div key={field} className="p-4 bg-gray-50 rounded-md shadow-sm">
+                                            //         {parsedFields.length > 1 && (
+                                            //             <div className="text-sm text-gray-500 mb-2">
+                                            //                 Message {idx + 1}
+                                            //             </div>
+                                            //         )}
+                                            //         <div className="text-sm text-gray-700 break-words">
+                                            //             <span className="ml-2">{splitFields[0]}</span>
+                                            //             {/* <div className="whitespace-pre-line">{splitFields[1]}</div> */}
+                                            //         </div>
+                                            //     </div>
+                                            // );
+                                                <div key={idx} className="p-4 bg-gray-50 rounded-md shadow-sm">
                                                     {parsedFields.length > 1 && (
                                                         <div className="text-sm text-gray-500 mb-2">
                                                             Message {idx + 1}
-                                                        </div>
+                                                        </div>   
                                                     )}
-                                                    <div className="text-sm text-gray-700 break-words">
-                                                        <span className="ml-2">{splitFields[0]}</span>
-                                                        {/* <div className="whitespace-pre-line">{splitFields[1]}</div> */}
-                                                    </div>
+                                                    <div className="text-sm text-gray-700 break-words">{field}</div>
                                                 </div>
-                                            );
-                                                // <div key={field} className="p-4 bg-gray-50 rounded-md shadow-sm">
-                                                //     {parsedFields.length > 1 && (
-                                                //         <div className="text-sm text-gray-500 mb-2">
-                                                //             Message {idx + 1}
-                                                //         </div>
-                                                //     )}
-                                                //     <div className="text-sm text-gray-700 break-words">{field}</div>
-                                                // </div>
-                                            })}
+                                            ))}
                                     </div>
                                 </CardContent>
                             </Card>
