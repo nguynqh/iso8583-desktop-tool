@@ -83,7 +83,7 @@ func (a *App) getMessage(line string) string {
 			sub := line[idx:]
 			sub = re.ReplaceAllString(sub, "")
 			rs := "{" + strings.TrimRight(sub, " ,-")
-			if validateJson(rs) {
+			if a.validateJson(rs) {
 				return rs
 			} else {
 				return "Sai Json: " + rs
@@ -95,6 +95,6 @@ func (a *App) getMessage(line string) string {
 	return ""
 }
 
-func validateJson(line string) bool {
+func (a *App) validateJson(line string) bool {
 	return json.Unmarshal([]byte(line), new(interface{})) == nil
 }
