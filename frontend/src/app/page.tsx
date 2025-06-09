@@ -73,7 +73,7 @@ export default function ISO8583Parser() {
         }
     }
 
-    const handleParseLog = () => {
+    const handleParseLog = async() => {
         if (!inputLog.trim()) {
         toast({
             title: "Lỗi",
@@ -85,32 +85,16 @@ export default function ISO8583Parser() {
 
         setIsProcessing(true)
 
-        // Simulate processing
-        setTimeout(async () => {
-        // Call logic to parse the log here
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-        // setValidationResults({
-        //     isValid: true,
-        //     errors: ['Không tìm thấy trường MTI trong log'],
-        //     warnings: [],
-        // })
-
-        // setParsedFields(filterISO(inputLog))
-        setParsedFields(
-            await ParseLog(inputLog)
-            // filterISO(inputLog)
-        )
-
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        try {
+            setParsedFields( await ParseLog(inputLog) )
+            toast({
+                title: "Hoàn thành",
+                description: "Đã phân tích log thành công",
+            });
+        }
+        catch (error) {}
+        
         setIsProcessing(false)
-        toast({
-            title: "Hoàn thành",
-            description: "Đã phân tích log thành công",
-        })
-        }, 2000)
     }
 
     // function filterISO(input: string): string[] {
