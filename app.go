@@ -67,24 +67,22 @@ func (a *App) ParseLog(log string) []string {
 }
 
 func (a *App) getMessage(line string) string {
+	re := regexp.MustCompile(`(\s*[\[,\\-]*\[[^\[\]]*\])+$`)
 	switch {
 	case strings.Contains(line, "MTI"):
 		idx := strings.Index(line, "MTI")
 		if idx != -1 {
-			// Tìm vị trí " - [" cuối cùng
-			end := strings.LastIndex(line, "[")
-			if end != -1 {
-				return strings.TrimRight(line[idx:end], " ,-")
-			}
-			return strings.TrimRight(line[idx:], " ,-")
-		} else {
-			return ""
+			sub := line[idx:]
+			sub = re.ReplaceAllString(sub, "")
+			return strings.TrimRight(sub, " ,-")
 		}
+		return ""
 	case strings.Contains(line, "mti"):
 		idx := strings.Index(line, `"mti"`)
 		if idx != -1 {
-			end := strings.LastIndex(line, "[")
-			rs := "{" + strings.TrimRight(line[idx:end], " -")
+			sub := line[idx:]
+			sub = re.ReplaceAllString(sub, "")
+			rs := "{" + strings.TrimRight(sub, " ,-")
 			if validateJson(rs) {
 				return rs
 			} else {
