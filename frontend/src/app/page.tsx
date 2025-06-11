@@ -11,8 +11,6 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-// import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-// import { Badge } from "@/components/ui/badge"
 
 
 import {
@@ -30,12 +28,15 @@ import {
 } from "lucide-react"
 
 import { toast } from "@/hooks/use-toast"
-// import { set } from "date-fns";
-// import { SettingsDialog } from "@/components/settings-dialog"
 import { UserGuideDialog } from "@/components/user-guide-dialog"
 import { set } from "date-fns";
 
+import { ParsedMessage } from "@/types/iso8583";
+import { MessageTable } from "@/components/MessageTable";
+
+// import from backend
 import { ParseLog } from "../../wailsjs/go/main/App"
+import { ParseMultipleMessages } from '../../wailsjs/go/main/App';
 
 interface ParsedField {
   id: string
@@ -97,29 +98,49 @@ export default function ISO8583Parser() {
         setIsProcessing(false)
     }
 
-    // function filterISO(input: string): string[] {
-    //     const f1 = input.split(/\r?\n/);
-    //     console.log("f1", f1)
-    //     const f2 = f1.filter(line => line.includes("MTI") || line.includes("mti"));
-    //     console.log("f2", f2)
-    //     return f2
-    // }
+// test---------------------
+    const [messages, setMessages] = useState<ParsedMessage[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>('');
 
-    // function processLogLine(line: string): string[] {
-    //     // Tìm vị trí "MTI" đầu tiên (nên có ",,MTI" hoặc "MTI")
-    //     const mtiIdx = line.indexOf("MTI");
-    //     const prefixEndIdx = line.lastIndexOf(",,", mtiIdx);
-    //     let prefix;
-    //     if (prefixEndIdx !== -1) {
-    //         prefix = line.slice(0, prefixEndIdx);
-    //     } else {
-    //         // fallback nếu không có dấu ",,"
-    //         prefix = line.slice(0, mtiIdx);
-    //     }
-    //     // message là từ MTI trở đi
-    //     const message = line.slice(mtiIdx);
-    //     return [prefix.trim(), message.trim()];
-    // }
+    const handleParseSampleMessages = async () => {
+        setLoading(true);
+        setError('');
+        
+        try {
+        // Get sample messages from backend
+        const sampleMessages = await ParseLog(inputLog);
+        const results = await ParseMultipleMessages(sampleMessages);
+        setMessages(results);
+        } catch (err) {
+        setError(`Parse error: ${err}`);
+        console.error('Parse error:', err);
+        } finally {
+        setLoading(false);
+        }
+    };
+
+    const handleParseCustomMessage = async () => {
+        const customMessage = prompt(
+        'Enter ISO8583 message (format: MTI=0200,F2:value,F3:value...):',
+        'MTI=0200,F2:123456789,F3:000000,F4:000001000000'
+        );
+        
+        if (!customMessage) return;
+
+        setLoading(true);
+        setError('');
+        
+        try {
+        const results = await ParseMultipleMessages([customMessage]);
+        setMessages(results);
+        } catch (err) {
+        setError(`Parse error: ${err}`);
+        console.error('Parse error:', err);
+        } finally {
+        setLoading(false);
+        }
+    };
 
 
     return (
@@ -327,6 +348,66 @@ export default function ISO8583Parser() {
                             </CardContent>
                         </Card>
                         
+                        {/* Sample Test */}
+                        <div className="mb-6 space-x-4">
+                            <Button
+                                onClick={handleParseSampleMessages}
+                                disabled={loading}
+                                className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                            >
+                                {loading ? 'Parsing...' : 'Parse Sample Messages'}
+                            </Button>
+                            <Button
+                                onClick={handleParseCustomMessage}
+                                disabled={loading}
+                                className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                            >
+                                Parse Custom Message
+                            </Button>
+                        </div>
+
+
+                        {/* Error Display */}
+                        {error && (
+                        <div className="mb-6 p-4 bg-red-100 border border-red-300 rounded-lg">
+                            <p className="text-red-700 font-medium">Error:</p>
+                            <p className="text-red-600">{error}</p>
+                        </div>
+                        )}
+
+                        {/* Loading State */}
+                        {loading && (
+                        <div className="mb-6 p-4 bg-blue-100 border border-blue-300 rounded-lg">
+                            <p className="text-blue-700">Parsing messages...</p>
+                        </div>
+                        )}
+
+                        {/* Results */}
+                        {messages.length > 0 && (
+                        <div>
+                            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                            Parsed Messages ({messages.length})
+                            </h2>
+                            
+                            {messages.map((message, index) => (
+                            <MessageTable 
+                                key={index} 
+                                message={message} 
+                                messageIndex={index}
+                            />
+                            ))}
+                        </div>
+                        )}
+
+                        {/* Empty State */}
+                        {!loading && messages.length === 0 && !error && (
+                        <div className="text-center py-12">
+                            <p className="text-gray-500 text-lg">
+                            Click "Parse Sample Messages" to get started
+                            </p>
+                        </div>
+                        )}
+
                         {/* Results */}
                             {/* Validation result */}
                         {(validationResults.errors.length > 0 || validationResults.warnings.length > 0) && (

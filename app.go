@@ -3,9 +3,11 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"regexp"
 	"strings"
+
+	"iso8583-desktop-tool/internal/models"
+	"iso8583-desktop-tool/internal/parser"
 )
 
 // App struct
@@ -41,11 +43,6 @@ func (a *App) shutdown(ctx context.Context) {
 	// Perform your teardown here
 }
 
-// Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
-}
-
 func (a *App) ParseLog(log string) []string {
 	// split line by regex
 	lines := regexp.MustCompile(`\r?\n`).Split(log, -1)
@@ -60,8 +57,6 @@ func (a *App) ParseLog(log string) []string {
 			result = append(result, mess)
 		}
 	}
-
-	//  get message from log
 
 	return result
 }
@@ -97,4 +92,16 @@ func (a *App) getMessage(line string) string {
 
 func (a *App) validateJson(line string) bool {
 	return json.Unmarshal([]byte(line), new(interface{})) == nil
+}
+
+// -----------------------------------------------
+
+// ParseMessage parses a single ISO8583 message
+func (a *App) ParseMessage(rawMessage string) (*models.ParsedMessage, error) {
+	return parser.ParseSimpleMessage(rawMessage)
+}
+
+// ParseMultipleMessages parses multiple ISO8583 messages
+func (a *App) ParseMultipleMessages(rawMessages []string) ([]*models.ParsedMessage, error) {
+	return parser.ParseMultipleMessages(rawMessages)
 }
