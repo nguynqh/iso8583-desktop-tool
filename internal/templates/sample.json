@@ -1,0 +1,16 @@
+[
+    {
+        "FieldNumber": "2",
+        "FieldType": "LLVAR",
+        "FieldLength": "2",
+        "FieldPattern": "{6}-{4}",
+        "FieldDescription": "Card Number"
+    },
+    {
+        "FieldNumber": "3",
+        "FieldType": "Fixed",
+        "FieldLength": "6",
+        "FieldPattern": "",
+        "FieldDescription": "Processing code"
+    }
+]

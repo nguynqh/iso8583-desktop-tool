@@ -6,10 +6,21 @@ import (
 	"strings"
 
 	"iso8583-desktop-tool/internal/models"
+	"iso8583-desktop-tool/internal/templates"
 )
 
+type Parser struct {
+	templateLoader *templates.TemplateLoader
+}
+
+func NewParser(templateLoader *templates.TemplateLoader) *Parser {
+	return &Parser{
+		templateLoader: templateLoader,
+	}
+}
+
 // ParseSimpleMessage parses a message in format: "MTI=0200,F2:value,F3:value..."
-func ParseSimpleMessage(raw string) (*models.ParsedMessage, error) {
+func (p *Parser) ParseSimpleMessage(raw string) (*models.ParsedMessage, error) {
 	if raw == "" {
 		return nil, fmt.Errorf("empty message")
 	}
@@ -20,7 +31,8 @@ func ParseSimpleMessage(raw string) (*models.ParsedMessage, error) {
 	}
 
 	message := &models.ParsedMessage{
-		Fields: []models.ParsedField{},
+		Fields:       []models.ParsedField{},
+		TemplateName: p.templateLoader.GetTemplateName(),
 	}
 
 	for _, part := range parts {

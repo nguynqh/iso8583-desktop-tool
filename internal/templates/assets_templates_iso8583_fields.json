@@ -1,0 +1,202 @@
+{
+  "version": "1.0",
+  "name": "Standard ISO8583 Fields",
+  "fields": {
+    "2": {
+      "name": "Primary Account Number",
+      "description": "Primary account number (PAN)",
+      "type": "numeric",
+      "length": 19,
+      "required": false
+    },
+    "3": {
+      "name": "Processing Code",
+      "description": "Processing code",
+      "type": "numeric",
+      "length": 6,
+      "required": true
+    },
+    "4": {
+      "name": "Amount Transaction",
+      "description": "Amount, transaction",
+      "type": "numeric",
+      "length": 12,
+      "required": true
+    },
+    "7": {
+      "name": "Transmission Date Time",
+      "description": "Transmission date & time",
+      "type": "numeric",
+      "length": 10,
+      "required": true
+    },
+    "11": {
+      "name": "STAN",
+      "description": "Systems trace audit number",
+      "type": "numeric",
+      "length": 6,
+      "required": true
+    },
+    "12": {
+      "name": "Local Transaction Time",
+      "description": "Local transaction time",
+      "type": "numeric",
+      "length": 6,
+      "required": true
+    },
+    "13": {
+      "name": "Local Transaction Date",
+      "description": "Local transaction date",
+      "type": "numeric",
+      "length": 4,
+      "required": true
+    },
+    "14": {
+      "name": "Expiration Date",
+      "description": "Expiration date",
+      "type": "numeric",
+      "length": 4,
+      "required": false
+    },
+    "15": {
+      "name": "Settlement Date",
+      "description": "Settlement date",
+      "type": "numeric",
+      "length": 4,
+      "required": false
+    },
+    "18": {
+      "name": "Merchant Type",
+      "description": "Merchant type",
+      "type": "numeric",
+      "length": 4,
+      "required": false
+    },
+    "22": {
+      "name": "POS Entry Mode",
+      "description": "Point of service entry mode",
+      "type": "numeric",
+      "length": 3,
+      "required": true
+    },
+    "25": {
+      "name": "POS Condition Code",
+      "description": "Point of service condition code",
+      "type": "numeric",
+      "length": 2,
+      "required": true
+    },
+    "28": {
+      "name": "Amount Transaction Fee",
+      "description": "Amount, transaction fee",
+      "type": "numeric",
+      "length": 8,
+      "required": false
+    },
+    "32": {
+      "name": "Acquiring Institution ID",
+      "description": "Acquiring institution identification code",
+      "type": "numeric",
+      "length": 11,
+      "required": false
+    },
+    "33": {
+      "name": "Forwarding Institution ID",
+      "description": "Forwarding institution identification code",
+      "type": "numeric",
+      "length": 11,
+      "required": false
+    },
+    "35": {
+      "name": "Track 2 Data",
+      "description": "Track 2 data",
+      "type": "string",
+      "length": 37,
+      "required": false
+    },
+    "37": {
+      "name": "Retrieval Reference Number",
+      "description": "Retrieval reference number",
+      "type": "string",
+      "length": 12,
+      "required": true
+    },
+    "38": {
+      "name": "Auth ID Response",
+      "description": "Authorization identification response",
+      "type": "string",
+      "length": 6,
+      "required": false
+    },
+    "39": {
+      "name": "Response Code",
+      "description": "Response code",
+      "type": "string",
+      "length": 2,
+      "required": true
+    },
+    "41": {
+      "name": "Card Acceptor Terminal ID",
+      "description": "Card acceptor terminal identification",
+      "type": "string",
+      "length": 8,
+      "required": true
+    },
+    "42": {
+      "name": "Card Acceptor ID",
+      "description": "Card acceptor identification code",
+      "type": "string",
+      "length": 15,
+      "required": true
+    },
+    "43": {
+      "name": "Card Acceptor Name",
+      "description": "Card acceptor name/location",
+      "type": "string",
+      "length": 40,
+      "required": false
+    },
+    "48": {
+      "name": "Additional Data",
+      "description": "Additional data",
+      "type": "string",
+      "length": 999,
+      "required": false
+    },
+    "49": {
+      "name": "Currency Code Transaction",
+      "description": "Currency code, transaction",
+      "type": "string",
+      "length": 3,
+      "required": true
+    },
+    "52": {
+      "name": "PIN Data",
+      "description": "Personal identification number data",
+      "type": "binary",
+      "length": 8,
+      "required": false
+    },
+    "53": {
+      "name": "Security Related Control",
+      "description": "Security related control information",
+      "type": "numeric",
+      "length": 16,
+      "required": false
+    },
+    "57": {
+      "name": "Additional Amount",
+      "description": "Additional amount",
+      "type": "string",
+      "length": 999,
+      "required": false
+    },
+    "62": {
+      "name": "Private Data",
+      "description": "Reserved private",
+      "type": "string",
+      "length": 999,
+      "required": false
+    }
+  }
+}
