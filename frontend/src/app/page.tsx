@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button"
@@ -11,6 +11,9 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { ParsingExplanation } from "@/components/ParsingExplanation"
+import { ValidationGuide } from "@/components/ValidationGuide"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 
 import {
@@ -23,22 +26,28 @@ import {
     Trash2,
     AlertTriangle,
     XCircle,
+    Info,
 //   Download,
 //   CheckCircle,
 } from "lucide-react"
 
 import { toast } from "@/hooks/use-toast"
 import { UserGuideDialog } from "@/components/user-guide-dialog"
-import { set } from "date-fns";
 
-import { ParsedMessage } from "@/types/iso8583";
+import { ParsedMessage} from "@/types/iso8583";
 import { MessageTable } from "@/components/MessageTable";
 
 // import from backend
-import { ParseLog } from "../../wailsjs/go/main/App"
-import { ParseMultipleMessages } from '../../wailsjs/go/main/App';
+import { 
+    ParseMultipleMessages,
+    GetSampleMessages,
+    GetTemplateName,
+    GetTemplateStats,
+    ParseMessage,
+    ParseLog,
+ } from "../../wailsjs/go/main/App"
 
-interface ParsedField {
+interface ParsedFielddddd {
   id: string
   name: string
   value: string
@@ -48,8 +57,12 @@ interface ParsedField {
   notes?: string
 }
 
-
 export default function ISO8583Parser() {
+
+    const fileInputRef = useRef<HTMLInputElement>(null)
+    const handleButtonClick = () => {
+        fileInputRef.current?.click()
+    }
 
     const [parsedFields, setParsedFields] = useState<string[]>([])
     const [inputLog, setInputLog] = useState("")
@@ -102,14 +115,27 @@ export default function ISO8583Parser() {
     const [messages, setMessages] = useState<ParsedMessage[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>('');
+    const [templateName, setTemplateName] = useState<string>('');
+    const [templateStats, setTemplateStats] = useState<any>(null);
+    const [showExplanation, setShowExplanation] = useState(false);
+    const [showValidationGuide, setShowValidationGuide] = useState(false);
+
+    useEffect(() => {
+        Promise.all([
+            GetTemplateName(),
+            GetTemplateStats(),
+        ]).then(([name, stats]) => {
+            setTemplateName(name);
+            setTemplateStats(stats);
+        }).catch(console.error);
+    }, []);
 
     const handleParseSampleMessages = async () => {
         setLoading(true);
         setError('');
         
         try {
-        // Get sample messages from backend
-        const sampleMessages = await ParseLog(inputLog);
+        const sampleMessages = await GetSampleMessages();
         const results = await ParseMultipleMessages(sampleMessages);
         setMessages(results);
         } catch (err) {
@@ -123,7 +149,7 @@ export default function ISO8583Parser() {
     const handleParseCustomMessage = async () => {
         const customMessage = prompt(
         'Enter ISO8583 message (format: MTI=0200,F2:value,F3:value...):',
-        'MTI=0200,F2:123456789,F3:000000,F4:000001000000'
+        'MTI=0100,F2:4532123456789012,F3:000000,F4:000000010000,F11:123456'
         );
         
         if (!customMessage) return;
@@ -132,8 +158,8 @@ export default function ISO8583Parser() {
         setError('');
         
         try {
-        const results = await ParseMultipleMessages([customMessage]);
-        setMessages(results);
+        const result = await ParseMessage(customMessage);
+        setMessages([result]);
         } catch (err) {
         setError(`Parse error: ${err}`);
         console.error('Parse error:', err);
@@ -142,6 +168,21 @@ export default function ISO8583Parser() {
         }
     };
 
+    const getOverallValidationStatus = () => {
+        if (messages.length === 0) return null;
+        
+        const validMessages = messages.filter(m => m.isValid).length;
+        const totalMessages = messages.length;
+        const percentage = (validMessages / totalMessages) * 100;
+        
+        return {
+            valid: validMessages,
+            total: totalMessages,
+            percentage: percentage
+        };
+    };
+
+    const overallStatus = getOverallValidationStatus();
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -179,14 +220,31 @@ export default function ISO8583Parser() {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-lg">Cấu hình</CardTitle>
-                                <CardDescription>Quản lý định nghĩa field và cài đặt</CardDescription>
+                                <CardDescription>Định nghĩa field và cài đặt</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div>
-                                    <Label htmlFor="field-config">File định nghĩa Field</Label>
+                                    <Label htmlFor="field-config">Định nghĩa Field</Label>
                                     <div className="mt-2">
-                                        <Input id="field-config" type="file" accept=".json" className="mb-2" />
-                                        <Button variant="outline" size="sm" className="w-full">
+                                        {/* <Input id="field-config" type="file" accept=".json" className="mb-2" /> */}
+                                        {/* <label htmlFor="file-upload" className="block w-full">
+
+                                            <input
+                                                id="field-config-upload"
+                                                type="file"
+                                                accept=".json"
+                                                className="hidden"
+                                                onChange={()=>{
+                                                    alert("Chức năng này chưa được triển khai---Upload JSON")
+                                                }}
+                                                />
+                                            <Button variant="outline" size="sm" className="w-full">
+                                                <Upload className="h-4 w-4 mr-2" />
+                                                Tải lên JSON
+                                            </Button>
+                                        </label> */}
+                                        <input ref={fileInputRef} type="file" accept=".json" className="" onChange={handleFileUpload} />
+                                        <Button variant="outline" size="sm" className="w-full" onClick={handleButtonClick}>
                                             <Upload className="h-4 w-4 mr-2" />
                                             Tải lên JSON
                                         </Button>
@@ -246,14 +304,34 @@ export default function ISO8583Parser() {
                         {/* Input */}
                         <Card>
                             <CardHeader>
-                                <CardTitle>Nhập Log ISO 8583</CardTitle>
-                                {/* <div className="flex">
-                                    <Button className="relative inline-flex w-44 " onClick={handleGreet}>Test function call from Go</Button>
-                                    <span className=" pl-10 inline-flex items-center justify-center text-sm text-gray-500" onChange={updateName}>
-                                        {greetValue}
-                                    </span>
-                                </div> */}
-                                <CardDescription>Nhập log cần phân tích thông qua các cách sau</CardDescription>
+                                <div className="flex items-center justify-between">
+                                <div className="flex-1">
+                                    <CardTitle>Nhập Log ISO 8583</CardTitle>
+                                    <CardDescription>Nhập log cần phân tích thông qua các cách sau</CardDescription>
+                                </div>
+                                <div className="ml-4 flex items-center gap-1">
+                                    <Select defaultValue="default">
+                                        <SelectTrigger className="w-40">
+                                            <SelectValue placeholder="Chọn template" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="default">Default template</SelectItem>
+                                            <SelectItem value="custom">Custom template</SelectItem>
+                                            <SelectItem value="advanced">Advanced template</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-8 w-8 p-0 hover:bg-gray-100"
+                                        onClick={() => {
+                                            alert("Chức năng này chưa được triển khai---Template Info")
+                                        }}
+                                        >
+                                        <Info className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                                </div>
                             </CardHeader>
                             <CardContent>
                                 <Tabs defaultValue="manual" className="w-full">
@@ -347,25 +425,82 @@ export default function ISO8583Parser() {
                                 </div>
                             </CardContent>
                         </Card>
-                        
-                        {/* Sample Test */}
-                        <div className="mb-6 space-x-4">
-                            <Button
-                                onClick={handleParseSampleMessages}
-                                disabled={loading}
-                                className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-                            >
-                                {loading ? 'Parsing...' : 'Parse Sample Messages'}
-                            </Button>
-                            <Button
-                                onClick={handleParseCustomMessage}
-                                disabled={loading}
-                                className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-                            >
-                                Parse Custom Message
-                            </Button>
+{/* --------------------------------------------------------------------------------------------------- */}
+                        {/* Template Info */}
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                            <div className="flex items-center justify-between">
+                            <div>
+                                <h3 className="font-medium text-blue-900">Template Information</h3>
+                                <p className="text-blue-700 text-sm">
+                                Using: <span className="font-medium">{templateName}</span>
+                                {templateStats && (
+                                    <span className="ml-2">
+                                    • {templateStats.totalFields} fields defined
+                                    • Types: {Object.entries(templateStats.fieldTypes).map(([type, count]) => 
+                                        `${type}(${count})`
+                                    ).join(', ')}
+                                    </span>
+                                )}
+                                </p>
+                            </div>
+                            <div className="flex space-x-2">
+                                <button
+                                onClick={() => setShowExplanation(!showExplanation)}
+                                className="text-blue-600 hover:text-blue-800 text-sm underline"
+                                >
+                                How Parsing Works
+                                </button>
+                                <button
+                                onClick={() => setShowValidationGuide(!showValidationGuide)}
+                                className="text-blue-600 hover:text-blue-800 text-sm underline"
+                                >
+                                Validation Rules
+                                </button>
+                            </div>
+                            </div>
                         </div>
 
+                        {/* Overall Status */}
+                        {overallStatus && (
+                            <div className="bg-white border rounded-lg p-4 mb-4">
+                            <h3 className="font-medium text-gray-800 mb-2">Overall Validation Status</h3>
+                            <div className="flex items-center space-x-4">
+                                <div className="flex items-center">
+                                <span className={`text-2xl mr-2 ${overallStatus.percentage === 100 ? 'text-green-500' : 'text-red-500'}`}>
+                                    {overallStatus.percentage === 100 ? '✅' : '❌'}
+                                </span>
+                                <span className="text-lg font-medium">
+                                    {overallStatus.valid}/{overallStatus.total} messages valid 
+                                    ({overallStatus.percentage.toFixed(1)}%)
+                                </span>
+                                </div>
+                            </div>
+                            </div>
+                        )}
+
+                        {/* Explanation */}
+                        {/* Explanation Panels */}
+                        {showExplanation && <ParsingExplanation onClose={() => setShowExplanation(false)} />}
+                        {showValidationGuide && <ValidationGuide onClose={() => setShowValidationGuide(false)} />}
+
+                        {/* Controls */}
+                        <div className="mb-6 space-x-4">
+                        <button
+                            onClick={handleParseSampleMessages}
+                            disabled={loading}
+                            className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                        >
+                            {loading ? 'Parsing...' : 'Parse Sample Messages'}
+                        </button>
+                        
+                        <button
+                            onClick={handleParseCustomMessage}
+                            disabled={loading}
+                            className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                        >
+                            Parse Custom Message
+                        </button>
+                        </div>
 
                         {/* Error Display */}
                         {error && (
@@ -378,14 +513,14 @@ export default function ISO8583Parser() {
                         {/* Loading State */}
                         {loading && (
                         <div className="mb-6 p-4 bg-blue-100 border border-blue-300 rounded-lg">
-                            <p className="text-blue-700">Parsing messages...</p>
+                            <p className="text-blue-700">Parsing messages with validation...</p>
                         </div>
                         )}
 
                         {/* Results */}
                         {messages.length > 0 && (
                         <div>
-                            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                            <h2 className="text-2xl font-semibold text-gray-800 mb-4">
                             Parsed Messages ({messages.length})
                             </h2>
                             
@@ -402,33 +537,19 @@ export default function ISO8583Parser() {
                         {/* Empty State */}
                         {!loading && messages.length === 0 && !error && (
                         <div className="text-center py-12">
-                            <p className="text-gray-500 text-lg">
-                            Click "Parse Sample Messages" to get started
+                            <div className="text-6xl mb-4">💳</div>
+                            <p className="text-gray-500 text-lg mb-2">
+                            Ready to parse ISO8583 messages
+                            </p>
+                            <p className="text-gray-400">
+                            Click "Parse Sample Messages" to see the parser and validator in action
                             </p>
                         </div>
                         )}
 
-                        {/* Results */}
-                            {/* Validation result */}
-                        {(validationResults.errors.length > 0 || validationResults.warnings.length > 0) && (
-                            <div className="space-y-2">
-                                {validationResults.errors.map((error, index) => (
-                                <Alert key={`error-${index}`} variant="destructive">
-                                    <XCircle className="h-4 w-4" />
-                                    <AlertDescription>{error}</AlertDescription>
-                                </Alert>
-                                ))}
+{/* ----------------------------------------------------------------------------------------------------------- */}
 
-                                {validationResults.warnings.map((warning, index) => (
-                                <Alert key={`warning-${index}`}>
-                                    <AlertTriangle className="h-4 w-4" />
-                                    <AlertDescription>{warning}</AlertDescription>
-                                </Alert>
-                                ))}
-                            </div>
-                        )}
-
-                            {/* Parsered field */}
+                        {/* Parsered field */}
                         {parsedFields.length > 0 && (
                             <Card>
                                 <CardHeader>
