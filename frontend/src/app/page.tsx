@@ -226,23 +226,6 @@ export default function ISO8583Parser() {
                                 <div>
                                     <Label htmlFor="field-config">Định nghĩa Field</Label>
                                     <div className="mt-2">
-                                        {/* <Input id="field-config" type="file" accept=".json" className="mb-2" /> */}
-                                        {/* <label htmlFor="file-upload" className="block w-full">
-
-                                            <input
-                                                id="field-config-upload"
-                                                type="file"
-                                                accept=".json"
-                                                className="hidden"
-                                                onChange={()=>{
-                                                    alert("Chức năng này chưa được triển khai---Upload JSON")
-                                                }}
-                                                />
-                                            <Button variant="outline" size="sm" className="w-full">
-                                                <Upload className="h-4 w-4 mr-2" />
-                                                Tải lên JSON
-                                            </Button>
-                                        </label> */}
                                         <input ref={fileInputRef} type="file" accept=".json" className="" onChange={handleFileUpload} />
                                         <Button variant="outline" size="sm" className="w-full" onClick={handleButtonClick}>
                                             <Upload className="h-4 w-4 mr-2" />
