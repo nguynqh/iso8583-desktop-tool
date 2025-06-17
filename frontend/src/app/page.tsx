@@ -10,9 +10,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ParsingExplanation } from "@/components/ParsingExplanation"
-import { ValidationGuide } from "@/components/ValidationGuide"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 
@@ -24,38 +21,18 @@ import {
     Copy,
     Play,
     Trash2,
-    AlertTriangle,
-    XCircle,
     Info,
-//   Download,
-//   CheckCircle,
+    Filter,
 } from "lucide-react"
 
 import { toast } from "@/hooks/use-toast"
 import { UserGuideDialog } from "@/components/user-guide-dialog"
 
-import { ParsedMessage} from "@/types/iso8583";
-import { MessageTable } from "@/components/MessageTable";
-
 // import from backend
-import { 
-    ParseMultipleMessages,
-    GetSampleMessages,
-    GetTemplateName,
-    GetTemplateStats,
-    ParseMessage,
-    ParseLog,
- } from "../../wailsjs/go/main/App"
-
-interface ParsedFielddddd {
-  id: string
-  name: string
-  value: string
-  type: string
-  length: number
-  status: "valid" | "invalid" | "warning"
-  notes?: string
-}
+import { FilterLog, ParseAndValidateMessage, ParseJsonMessage, ParseSimpleMessage } from "../../wailsjs/go/main/App"
+import { main, models } from "../../wailsjs/go/models";
+import { ParsedMessageTable } from "@/components/ParsedMessageTable";
+import { log } from "console";
 
 export default function ISO8583Parser() {
 
@@ -64,7 +41,10 @@ export default function ISO8583Parser() {
         fileInputRef.current?.click()
     }
 
-    const [parsedFields, setParsedFields] = useState<string[]>([])
+    // create type from BE
+    const [filterdLog, setFilteredLog] = useState<main.Message[]>([])
+    const [parsedMessage, setParsedMessage] = useState<models.ParsedMessage[]>([])
+    
     const [inputLog, setInputLog] = useState("")
     const [isProcessing, setIsProcessing] = useState(false)
     const [showTextarea, setShowTextarea] = useState(false);
@@ -75,6 +55,16 @@ export default function ISO8583Parser() {
         warnings: string[]
     }>({ isValid: true, errors: [], warnings: [] })
 
+    const [expandedItems, setExpandedItems] = useState(new Set());
+    const toggleExpanded = (index: unknown) => {
+        const newExpanded = new Set(expandedItems);
+        if (newExpanded.has(index)) {
+            newExpanded.delete(index);
+        } else {
+            newExpanded.add(index);
+        }
+        setExpandedItems(newExpanded);
+    };
 
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0]
@@ -100,7 +90,16 @@ export default function ISO8583Parser() {
         setIsProcessing(true)
 
         try {
-            setParsedFields( await ParseLog(inputLog) )
+            const logArr = await FilterLog(inputLog)
+            setFilteredLog( logArr )
+
+            const parseResults = await Promise.all(
+                logArr.map(msg => 
+                    ParseAndValidateMessage(msg.content).catch(err => {console.error("Error parsing message:", err); return null; })
+                )
+            )
+
+
             toast({
                 title: "Hoàn thành",
                 description: "Đã phân tích log thành công",
@@ -112,77 +111,10 @@ export default function ISO8583Parser() {
     }
 
 // test---------------------
-    const [messages, setMessages] = useState<ParsedMessage[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>('');
-    const [templateName, setTemplateName] = useState<string>('');
-    const [templateStats, setTemplateStats] = useState<any>(null);
-    const [showExplanation, setShowExplanation] = useState(false);
-    const [showValidationGuide, setShowValidationGuide] = useState(false);
 
-    useEffect(() => {
-        Promise.all([
-            GetTemplateName(),
-            GetTemplateStats(),
-        ]).then(([name, stats]) => {
-            setTemplateName(name);
-            setTemplateStats(stats);
-        }).catch(console.error);
-    }, []);
 
-    const handleParseSampleMessages = async () => {
-        setLoading(true);
-        setError('');
-        
-        try {
-        const sampleMessages = await GetSampleMessages();
-        const results = await ParseMultipleMessages(sampleMessages);
-        setMessages(results);
-        } catch (err) {
-        setError(`Parse error: ${err}`);
-        console.error('Parse error:', err);
-        } finally {
-        setLoading(false);
-        }
-    };
-
-    const handleParseCustomMessage = async () => {
-        const customMessage = prompt(
-        'Enter ISO8583 message (format: MTI=0200,F2:value,F3:value...):',
-        'MTI=0100,F2:4532123456789012,F3:000000,F4:000000010000,F11:123456'
-        );
-        
-        if (!customMessage) return;
-
-        setLoading(true);
-        setError('');
-        
-        try {
-        const result = await ParseMessage(customMessage);
-        setMessages([result]);
-        } catch (err) {
-        setError(`Parse error: ${err}`);
-        console.error('Parse error:', err);
-        } finally {
-        setLoading(false);
-        }
-    };
-
-    const getOverallValidationStatus = () => {
-        if (messages.length === 0) return null;
-        
-        const validMessages = messages.filter(m => m.isValid).length;
-        const totalMessages = messages.length;
-        const percentage = (validMessages / totalMessages) * 100;
-        
-        return {
-            valid: validMessages,
-            total: totalMessages,
-            percentage: percentage
-        };
-    };
-
-    const overallStatus = getOverallValidationStatus();
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -247,7 +179,7 @@ export default function ISO8583Parser() {
                                             // handleExport("json")
                                             alert("Chức năng này chưa được triển khai---Export JSON")
                                         }
-                                        disabled={parsedFields.length === 0}
+                                        disabled={filterdLog.length === 0}
                                         >
                                             <Download className="h-4 w-4 mr-2" />
                                             Xuất JSON
@@ -260,7 +192,7 @@ export default function ISO8583Parser() {
                                             // handleExport("excel")
                                             alert("Chức năng này chưa được triển khai---Export Excel")
                                         }
-                                        disabled={parsedFields.length === 0}
+                                        disabled={filterdLog.length === 0}
                                         >
                                             <Download className="h-4 w-4 mr-2" />
                                             Xuất Excel
@@ -354,15 +286,14 @@ export default function ISO8583Parser() {
                                         <div className="text-center py-8">
                                         <Button
                                             variant="outline"
-                                            onClick={() => {
-                                            navigator.clipboard.readText().then((text) => {
+                                            onClick={async () => {
+                                                const text = await navigator.clipboard.readText()
                                                 setInputLog(text)
                                                 setShowTextarea(true)
                                                 toast({
                                                 title: "Thành công",
                                                 description: "Đã dán nội dung từ clipboard",
                                                 })
-                                            })
                                             }}
                                         >
                                             <Copy className="h-4 w-4 mr-2" />
@@ -398,7 +329,7 @@ export default function ISO8583Parser() {
                                     onClick={() => {
                                     setInputLog("")
                                     setShowTextarea(false)
-                                    setParsedFields([])
+                                    setFilteredLog([])
                                     setValidationResults({ isValid: true, errors: [], warnings: [] })
                                     }}
                                 >
@@ -407,88 +338,12 @@ export default function ISO8583Parser() {
                                 </Button>
                                 </div>
                             </CardContent>
-                        </Card>
-{/* --------------------------------------------------------------------------------------------------- */}
-                        {/* Template Info */}
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                            <div className="flex items-center justify-between">
-                            <div>
-                                <h3 className="font-medium text-blue-900">Template Information</h3>
-                                <p className="text-blue-700 text-sm">
-                                Using: <span className="font-medium">{templateName}</span>
-                                {templateStats && (
-                                    <span className="ml-2">
-                                    • {templateStats.totalFields} fields defined
-                                    • Types: {Object.entries(templateStats.fieldTypes).map(([type, count]) => 
-                                        `${type}(${count})`
-                                    ).join(', ')}
-                                    </span>
-                                )}
-                                </p>
-                            </div>
-                            <div className="flex space-x-2">
-                                <button
-                                onClick={() => setShowExplanation(!showExplanation)}
-                                className="text-blue-600 hover:text-blue-800 text-sm underline"
-                                >
-                                How Parsing Works
-                                </button>
-                                <button
-                                onClick={() => setShowValidationGuide(!showValidationGuide)}
-                                className="text-blue-600 hover:text-blue-800 text-sm underline"
-                                >
-                                Validation Rules
-                                </button>
-                            </div>
-                            </div>
-                        </div>
-
-                        {/* Overall Status */}
-                        {overallStatus && (
-                            <div className="bg-white border rounded-lg p-4 mb-4">
-                            <h3 className="font-medium text-gray-800 mb-2">Overall Validation Status</h3>
-                            <div className="flex items-center space-x-4">
-                                <div className="flex items-center">
-                                <span className={`text-2xl mr-2 ${overallStatus.percentage === 100 ? 'text-green-500' : 'text-red-500'}`}>
-                                    {overallStatus.percentage === 100 ? '✅' : '❌'}
-                                </span>
-                                <span className="text-lg font-medium">
-                                    {overallStatus.valid}/{overallStatus.total} messages valid 
-                                    ({overallStatus.percentage.toFixed(1)}%)
-                                </span>
-                                </div>
-                            </div>
-                            </div>
-                        )}
-
-                        {/* Explanation */}
-                        {/* Explanation Panels */}
-                        {showExplanation && <ParsingExplanation onClose={() => setShowExplanation(false)} />}
-                        {showValidationGuide && <ValidationGuide onClose={() => setShowValidationGuide(false)} />}
-
-                        {/* Controls */}
-                        <div className="mb-6 space-x-4">
-                        <button
-                            onClick={handleParseSampleMessages}
-                            disabled={loading}
-                            className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-3 rounded-lg font-medium transition-colors"
-                        >
-                            {loading ? 'Parsing...' : 'Parse Sample Messages'}
-                        </button>
-                        
-                        <button
-                            onClick={handleParseCustomMessage}
-                            disabled={loading}
-                            className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white px-6 py-3 rounded-lg font-medium transition-colors"
-                        >
-                            Parse Custom Message
-                        </button>
-                        </div>
+                        </Card> 
 
                         {/* Error Display */}
                         {error && (
                         <div className="mb-6 p-4 bg-red-100 border border-red-300 rounded-lg">
-                            <p className="text-red-700 font-medium">Error:</p>
+                            <p className="text-red-700 font-medium">Lỗi:</p>
                             <p className="text-red-600">{error}</p>
                         </div>
                         )}
@@ -496,49 +351,18 @@ export default function ISO8583Parser() {
                         {/* Loading State */}
                         {loading && (
                         <div className="mb-6 p-4 bg-blue-100 border border-blue-300 rounded-lg">
-                            <p className="text-blue-700">Parsing messages with validation...</p>
+                            <p className="text-blue-700">Đang phân tích thông Log và kiểm tra tính hợp lệ của thông điệp...</p>
                         </div>
                         )}
 
-                        {/* Results */}
-                        {messages.length > 0 && (
-                        <div>
-                            <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-                            Parsed Messages ({messages.length})
-                            </h2>
-                            
-                            {messages.map((message, index) => (
-                            <MessageTable 
-                                key={index} 
-                                message={message} 
-                                messageIndex={index}
-                            />
-                            ))}
-                        </div>
-                        )}
-
-                        {/* Empty State */}
-                        {!loading && messages.length === 0 && !error && (
-                        <div className="text-center py-12">
-                            <div className="text-6xl mb-4">💳</div>
-                            <p className="text-gray-500 text-lg mb-2">
-                            Ready to parse ISO8583 messages
-                            </p>
-                            <p className="text-gray-400">
-                            Click "Parse Sample Messages" to see the parser and validator in action
-                            </p>
-                        </div>
-                        )}
-
-{/* ----------------------------------------------------------------------------------------------------------- */}
 
                         {/* Parsered field */}
-                        {parsedFields.length > 0 && (
+                        {filterdLog.length > 0 && (
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Kết quả phân tích</CardTitle>
                                     <CardDescription>
-                                        Hiển thị {parsedFields.length} message ISO8583 đã được tách từ log
+                                        Hiển thị {filterdLog.length} message ISO8583 đã được tách từ log
                                         <br />
                                         {/* {openIdx !== null && (
                                             <span className="text-blue-500">Đang mở message {openIdx + 1}</span>
@@ -547,28 +371,66 @@ export default function ISO8583Parser() {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="space-y-4">
-                                        {parsedFields.map((field, idx) => (
-                                            // const splitFields = processLogLine(field);
-                                            // return (
-                                            //     <div key={field} className="p-4 bg-gray-50 rounded-md shadow-sm">
-                                            //         {parsedFields.length > 1 && (
-                                            //             <div className="text-sm text-gray-500 mb-2">
-                                            //                 Message {idx + 1}
-                                            //             </div>
-                                            //         )}
-                                            //         <div className="text-sm text-gray-700 break-words">
-                                            //             <span className="ml-2">{splitFields[0]}</span>
-                                            //             {/* <div className="whitespace-pre-line">{splitFields[1]}</div> */}
-                                            //         </div>
-                                            //     </div>
-                                            // );
-                                                <div key={idx} className="p-4 bg-gray-50 rounded-md shadow-sm">
-                                                    {parsedFields.length > 1 && (
-                                                        <div className="text-sm text-gray-500 mb-2">
-                                                            Message {idx + 1}
-                                                        </div>   
-                                                    )}
-                                                    <div className="text-sm text-gray-700 break-words">{field}</div>
+                                        {filterdLog.map((field: main.Message, idx) => (
+                                                <div key={idx} className="p-3 bg-gray-50 rounded-md shadow-sm">
+                                                    <div>
+                                                        {filterdLog.length > 1 && (
+                                                            <div className="text-base text-gray-500 mb-1 flex">
+                                                                Message {idx + 1}: 
+                                                                <div className="text-red-400 pl-2">
+                                                                    {field.description}
+                                                                </div>
+                                                            </div>   
+                                                        )}
+                                                    </div>
+                                                    {/*clickable */}
+                                                    <div className="p-2 cursor-pointer hover:bg-gray-100 transition-colors duration-200 flex items-center justify-between" onClick={() => toggleExpanded(idx)}>
+                                                        <div className="text-sm text-gray-700 font-medium break-words relative overflow-hidden"
+                                                            style={{ maxHeight: '1.5rem', lineHeight: '1.5rem' }}
+                                                        >
+                                                            {field.content}
+                                                            <div className="absolute bottom-0 right-0 w-20 h-full bg-gradient-to-l from-gray-50 to-transparent pointer-events-none"></div>
+                                                        </div>
+                                                        {/* Status indicator */}
+                                                        <Button
+                                                            className={`
+                                                                ml-2 text-xs flex items-center gap-1 px-2 py-0.5 rounded-xl font-semibold
+                                                                transition-colors duration-150 focus:outline-none
+                                                                ${expandedItems.has(idx)
+                                                                ? "text-[#14b8a6] bg-[#a7f3d0]"
+                                                                : "text-[#6366f1] bg-[#e0e7ff]"}
+                                                            `}
+                                                            onClick={() => toggleExpanded(idx)}
+                                                            tabIndex={0}
+                                                        >
+                                                            {expandedItems.has(idx) ? 'Thu gọn' : 'Mở rộng'}
+                                                            <div className={`w-2 px-1.5 h-2 rounded-full ${
+                                                                expandedItems.has(idx) ? 'bg-[#38bdf8]' : 'bg-[#d1d5db]'
+                                                            }`}>
+                                                            </div>
+                                                        </Button>
+                                                    </div>
+                                                    {/* Expandable content*/}
+                                                    <div className={`overflow-hidden transition-all duration-400 ease-in-out ${
+                                                        expandedItems.has(idx) ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                                                    }`}>
+                                                        <div className="px-1 pb-4 border-t border-gray-200 bg-white">
+                                                            <div className="pt-4 space-y-4">
+                                                                <div className="text-sm text-gray-700 break-all font-mono bg-gray-50 p-3 rounded border max-h-32 overflow-y-auto">
+                                                                    <div>{field.content}</div>
+                                                                </div>
+                                                            </div>
+                                                            {parsedMessage.map((msg, idx) => (
+                                                                console.log("Parsed message:", msg),
+                                                                print(),
+                                                                <ParsedMessageTable key={idx} message={msg}/>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    {/* <div className="text-sm text-gray-700 break-words">
+                                                        {field}
+                                                    </div> */}
                                                 </div>
                                             ))}
                                     </div>

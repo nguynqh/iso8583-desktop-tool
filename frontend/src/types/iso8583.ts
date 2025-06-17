@@ -1,3 +1,8 @@
+export interface Message{
+  Content: string;
+  Description: string;
+}
+
 export interface ValidationError {
   fieldId: number;
   fieldName: string;
@@ -13,15 +18,12 @@ export interface ParsedField {
   id: number;
   name: string;
   value: string;
-  description: string;
-  fieldType: string; // Fixed, LLVAR, LLLVAR, Bitmap
-  maxLength: number; // Maximum allowed length
-  actualLength: number; // Current value length
-  pattern: string; // Expected pattern
+  fieldType: string;
+  maxLength: number;
+  actualLength: number;
+  pattern: string;
   isValid: boolean;
-  errors?: ValidationError[];
-  warnings?: ValidationError[];
-  parseMethod: string; // How this field was parsed
+  error?: string;
 }
 
 export interface ValidationSummary {
@@ -37,14 +39,11 @@ export interface ValidationSummary {
 
 export interface ParsedMessage {
   mti: string;
-  mtiDescription: string;
+  format: string;
   fields: ParsedField[];
-  fieldCount: number;
-  templateName: string;
   isValid: boolean;
-  validationSummary: ValidationSummary;
+  errorCount: number;
   parsedAt: string;
-  parsingMethod: string; // Simple, Advanced, etc.
 }
 
 export interface TemplateStats {

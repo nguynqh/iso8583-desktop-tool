@@ -28,6 +28,6 @@
         ".next/types/**/*.ts",
         "next-env.d.ts",
         "dist/types/**/*.ts"
-    ],
+, "../test/MessageTable.tsx"    ],
     "exclude": ["node_modules"]
 }
