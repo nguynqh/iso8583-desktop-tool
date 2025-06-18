@@ -121,8 +121,8 @@ func (a *App) getMessage(line string) (string, string) {
 			}
 		}
 	}
-	fmt.Printf("Message: %s\n", mess)
-	fmt.Printf("Description: %s\n", des)
+	// fmt.Printf("Message: %s\n", mess)
+	// fmt.Printf("Description: %s\n", des)
 	return mess, des
 }
 
@@ -133,6 +133,7 @@ func (a *App) validateJson(line string) bool {
 // Parse and Validate-----------------------------------------------
 
 func (a *App) ParseAndValidateMessage(message string) (*models.ParsedMessage, error) {
+	fmt.Println("Parsing and validating message:", message)
 	return a.parser.ParseMessage(message)
 }
 

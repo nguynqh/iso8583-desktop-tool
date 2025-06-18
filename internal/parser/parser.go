@@ -35,88 +35,17 @@ func (p *ISO8583Parser) ParseMessage(raw string) (*models.ParsedMessage, error) 
 	}
 
 	if strings.HasPrefix(raw, "MTI=") {
-		fmt.Printf("Detected MTI-based message format\n")
+		fmt.Printf("===================Parse Simple MTI-based message format\n")
 		return p.ParseSimple(raw)
 	}
 
-	if strings.Contains(raw, "mti") && strings.Contains(raw, "listField") {
-		fmt.Printf("Detacted MTI-based message format JSON\n")
+	if strings.HasPrefix(raw, `{"mti`) {
+		fmt.Printf("===================Parse Json MTI-based message format\n")
 		return p.ParseJSON(raw)
 	}
 
 	return nil, fmt.Errorf("unsupported message format: %s", raw)
 
-	/*
-		// // Step 1: Split message into components
-		// fmt.Printf("\nStep 1: Splitting message into components...\n")
-		// parts := strings.Split(raw, ",")
-		// fmt.Printf("Found %d components: %v\n", len(parts), parts)
-
-		// if len(parts) == 0 {
-		// 	return nil, fmt.Errorf("invalid message format - no components found")
-		// }
-
-		// // Step 2: Initialize message structure
-		// message := &models.ParsedMessage{
-		// 	Fields:        []models.ParsedField{},
-		// 	TemplateName:  p.templateLoader.GetTemplateName(),
-		// 	ParsedAt:      time.Now().UTC().Format("2006-01-02 15:04:05"),
-		// 	ParsingMethod: "Simple Format Parser",
-		// }
-
-		// fmt.Printf("\nStep 2: Processing each component...\n")
-
-		// // Step 3: Process each component
-		// for i, part := range parts {
-		// 	part = strings.TrimSpace(part)
-		// 	fmt.Printf("  Component %d: '%s'\n", i+1, part)
-
-		// 	if strings.HasPrefix(part, "MTI=") {
-		// 		// Parse MTI (Message Type Indicator)
-		// 		mti := strings.TrimPrefix(part, "MTI=")
-		// 		message.MTI = mti
-		// 		message.MTIDescription = p.interpretMTI(mti)
-		// 		fmt.Printf("    → MTI identified: %s (%s)\n", mti, message.MTIDescription)
-
-		// 	} else if strings.HasPrefix(part, "F") && strings.Contains(part, ":") {
-		// 		// Parse field in format F<number>:<value>
-		// 		fmt.Printf("    → Processing field component...\n")
-		// 		field, err := p.parseFieldComponent(part)
-		// 		if err != nil {
-		// 			fmt.Printf("    → Error parsing field: %v\n", err)
-		// 			continue
-		// 		}
-
-		// 		fmt.Printf("    → Field parsed successfully: F%d = %s\n", field.ID, field.Value)
-		// 		message.Fields = append(message.Fields, *field)
-		// 	} else {
-		// 		fmt.Printf("    → Unknown component format, skipping\n")
-		// 	}
-		// }
-
-		// // Step 4: Validate MTI presence
-		// if message.MTI == "" {
-		// 	return nil, fmt.Errorf("MTI (Message Type Indicator) not found in message")
-		// }
-
-		// // Step 5: Set basic message properties
-		// message.FieldCount = len(message.Fields)
-		// fmt.Printf("\nStep 3: Message parsing completed\n")
-		// fmt.Printf("  MTI: %s\n", message.MTI)
-		// fmt.Printf("  Fields found: %d\n", message.FieldCount)
-
-		// // Step 6: Apply validation rules
-		// fmt.Printf("\nStep 4: Applying validation rules...\n")
-		// p.messageValidator.ValidateMessage(message)
-
-		// fmt.Printf("  Validation completed:\n")
-		// fmt.Printf("    - Valid fields: %d/%d\n", message.ValidationSummary.ValidFields, message.ValidationSummary.TotalFields)
-		// fmt.Printf("    - Errors: %d\n", message.ValidationSummary.ErrorCount)
-		// fmt.Printf("    - Warnings: %d\n", message.ValidationSummary.WarningCount)
-		// fmt.Printf("    - Overall valid: %t\n", message.IsValid)
-
-		// return message, nil
-	*/
 }
 
 // Simple -----------------------------
@@ -384,6 +313,7 @@ func (p *ISO8583Parser) validate(msg *models.ParsedMessage) {
 				field.IsValid = false
 				field.Error = fmt.Sprintf("Fixed field must be %d chars, got %d", expectedLen, field.ActualLength)
 				errorCount++
+				fmt.Printf("Cộng error của: " + field.Name + " - " + field.Error + "\n")
 			}
 
 		case "LLVAR", "LLLVAR":
@@ -488,6 +418,7 @@ func (p *ISO8583Parser) validateSpecificField(field *models.ParsedField, errorCo
 			(*errorCount)++
 		}
 	}
+
 }
 
 // Helper functions
