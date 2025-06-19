@@ -40,10 +40,45 @@ import { ViewTemplateDetail } from "@/components/view-tamplate-detail";
 export default function ISO8583Parser() {
 
     //upload file
-    const [selectedFile, setSelectedFile] = useState()
+    const [selectedFile, setSelectedFile] = useState<File | null>()
     const fileInputRef = useRef<HTMLInputElement>(null)
     const handleButtonClick = () => {
         fileInputRef.current?.click()
+    }
+
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    const handleTemplateFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0]
+        if (file) {
+            setSelectedFile(file)
+            const reader = new FileReader()
+            reader.onload = (e) => {
+                try {
+                    const jsonData = JSON.parse(e.target?.result as string)
+                    ParseJsonMessage(jsonData).then((res) => {
+                        toast({
+                            title: "Thành công",
+                            description: "Đã tải lên và phân tích template thành công",
+                        })
+                    }).catch((err) => {
+                        console.error("Error parsing JSON:", err);
+                        toast({
+                            title: "Lỗi",
+                            description: "Không thể phân tích template. Vui lòng kiểm tra định dạng JSON.",
+                            variant: "destructive",
+                        })
+                    })
+                } catch (error) {
+                    console.error("Error reading file:", error);
+                    toast({
+                        title: "Lỗi",
+                        description: "Không thể đọc file. Vui lòng kiểm tra định dạng JSON.",
+                        variant: "destructive",
+                    })
+                }
+            }
+            reader.readAsText(file)
+        }
     }
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0]
@@ -184,7 +219,7 @@ export default function ISO8583Parser() {
                                 <div>
                                     <Label htmlFor="field-config">Định nghĩa Field</Label>
                                     <div className="mt-2">
-                                        <input ref={fileInputRef} type="file" accept=".json" className="hidden" onChange={handleFileUpload} />
+                                        <input ref={fileInputRef} type="file" accept=".json" className="hidden" onChange={handleTemplateFileUpload} />
                                         <Button variant="outline" size="sm" className="w-full" onClick={handleButtonClick}>
                                             <Upload className="h-4 w-4 mr-2" />
                                             Tải lên JSON
@@ -227,16 +262,16 @@ export default function ISO8583Parser() {
                                     </div>
                                 </div>
 
-                                <Separator />
+                                {/* <Separator /> */}
 
-                                <div>
+                                {/* <div>
                                     <Label>Thao tác nhanh</Label>
                                     <div className="mt-2 text-sm text-gray-600 space-y-1">
                                         <div>Ctrl + V: Dán log</div>
                                         <div>Ctrl + Enter: Phân tích</div>
                                         <div>Ctrl + S: Lưu kết quả</div>
                                     </div>
-                                </div>
+                                </div> */}
                             </CardContent>
                         </Card>
                     </div>
@@ -249,19 +284,9 @@ export default function ISO8583Parser() {
                                 <div className="flex items-center justify-between">
                                 <div className="flex-1">
                                     <CardTitle>Nhập Log ISO 8583</CardTitle>
-                                    <CardDescription>Nhập log cần phân tích thông qua các cách sau</CardDescription>
+                                    <CardDescription className="pt-1">Nhập log cần phân tích thông qua các cách sau</CardDescription>
                                 </div>
                                 <div className="ml-4 flex items-center gap-1">
-                                    {/* <Select defaultValue="default">
-                                        <SelectTrigger className="w-40">
-                                            <SelectValue placeholder="Chọn template" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="default">Default template</SelectItem>
-                                            <SelectItem value="custom">Custom template</SelectItem>
-                                            <SelectItem value="advanced">Advanced template</SelectItem>
-                                        </SelectContent>
-                                    </Select> */}
                                     {templatesLoading ? (
                                         <div className="text-sm text-gray-500">Loading templates...</div>
                                     ) : templatesError ? (
@@ -324,9 +349,19 @@ export default function ISO8583Parser() {
                                             id="file-upload"
                                             type="file"
                                             accept=".txt,.log"
+                                            onClick={ async() => {
+                                                setShowTextarea(true)
+                                            }}
                                             onChange={handleFileUpload}
                                             className="mt-2"
                                         />
+                                        {showTextarea && <Textarea 
+                                            id="log-input"
+                                            placeholder="Log ISO 8583 được dán vào đây..."
+                                            value={inputLog}
+                                            onChange={(e) => setInputLog(e.target.value)}
+                                            className="min-h-[120px] mt-2"
+                                        />}
                                         </div>
                                     </TabsContent>
 
