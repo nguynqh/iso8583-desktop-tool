@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-
+import { useTemplate } from "@/hooks/use-template";
 
 import {
     Download,
@@ -24,38 +24,72 @@ import {
     Info,
     Filter,
 } from "lucide-react"
+import Link from "next/link"
 
 import { toast } from "@/hooks/use-toast"
 import { UserGuideDialog } from "@/components/user-guide-dialog"
+
 
 // import from backend
 import { FilterLog, ParseAndValidateMessage, ParseJsonMessage, ParseSimpleMessage } from "../../wailsjs/go/main/App"
 import { main, models } from "../../wailsjs/go/models";
 import { ParsedMessageTable } from "@/components/ParsedMessageTable";
-import { log } from "console";
-import { set } from "date-fns";
+import { SettingsDialog } from "@/components/settings-dialog";
+import { ViewTemplateDetail } from "@/components/view-tamplate-detail";
 
 export default function ISO8583Parser() {
 
+    //upload file
+    const [selectedFile, setSelectedFile] = useState()
     const fileInputRef = useRef<HTMLInputElement>(null)
     const handleButtonClick = () => {
         fileInputRef.current?.click()
+    }
+    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0]
+        if (file) {
+            const reader = new FileReader()
+            reader.onload = (e) => {
+                setInputLog(e.target?.result as string)
+            }
+            reader.readAsText(file)
+        }
     }
 
     // create type from BE
     const [filterdLog, setFilteredLog] = useState<main.Message[]>([])
     const [parsedMessage, setParsedMessage] = useState<models.ParsedMessage[]>([])
     
+    // select teamplate and view template data
+    const { templates, loading: templatesLoading, error: templatesError } = useTemplate();
+    const [selectedTemplate, setSelectedTemplate] = useState<string>("");
+    const [templateViewOpen, setTemplateViewOpen] = useState(false)
+    const getSelectedTemplateData = () => {
+        if (!selectedTemplate) return null;
+        
+        const template = templates.find(t => t.fileName === selectedTemplate);
+        
+        if (!template) {
+            console.warn(`Template not found: ${selectedTemplate}.json`);
+            return null;
+        }
+        
+        return template.data;
+    }
+
+
     const [inputLog, setInputLog] = useState("")
     const [isProcessing, setIsProcessing] = useState(false)
     const [showTextarea, setShowTextarea] = useState(false);
     const [userGuideOpen, setUserGuideOpen] = useState(false)
+    const [settingsOpen, setSettingsOpen] = useState(false)
     const [validationResults, setValidationResults] = useState<{
         isValid: boolean
         errors: string[]
         warnings: string[]
     }>({ isValid: true, errors: [], warnings: [] })
 
+    // View detail item filtered from log
     const [expandedItems, setExpandedItems] = useState(new Set());
     const toggleExpanded = (index: unknown) => {
         const newExpanded = new Set(expandedItems);
@@ -66,17 +100,6 @@ export default function ISO8583Parser() {
         }
         setExpandedItems(newExpanded);
     };
-
-    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0]
-        if (file) {
-        const reader = new FileReader()
-        reader.onload = (e) => {
-            setInputLog(e.target?.result as string)
-        }
-        reader.readAsText(file)
-        }
-    }
 
     const handleParseLog = async() => {
         if (!inputLog.trim()) {
@@ -112,11 +135,6 @@ export default function ISO8583Parser() {
         setIsProcessing(false)
     }
 
-// test---------------------
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>('');
-
-
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -129,9 +147,15 @@ export default function ISO8583Parser() {
                             <p className="text-gray-600">Công cụ phân tích và kiểm tra log ISO 8583</p>
                         </div>
                         <div className="flex gap-2">
+                            <Link href="/schema-analyzer">
+                                <Button variant="outline" size="sm">
+                                    Phân tích theo yêu cầu
+                                </Button>
+                            </Link>
                             <Button variant="outline" size="sm" onClick={() => 
-                                // setSettingsOpen(true)}>
-                                alert("Chức năng này chưa được triển khai---Settings")}>
+                                setSettingsOpen(true)
+                                // alert("Chức năng này chưa được triển khai---Settings")
+                                }>
                                 <Settings className="h-4 w-4 mr-2" />
                                 Cấu hình
                             </Button>
@@ -160,11 +184,12 @@ export default function ISO8583Parser() {
                                 <div>
                                     <Label htmlFor="field-config">Định nghĩa Field</Label>
                                     <div className="mt-2">
-                                        <input ref={fileInputRef} type="file" accept=".json" className="" onChange={handleFileUpload} />
+                                        <input ref={fileInputRef} type="file" accept=".json" className="hidden" onChange={handleFileUpload} />
                                         <Button variant="outline" size="sm" className="w-full" onClick={handleButtonClick}>
                                             <Upload className="h-4 w-4 mr-2" />
                                             Tải lên JSON
                                         </Button>
+                                        {}
                                     </div>
                                 </div>
 
@@ -227,7 +252,7 @@ export default function ISO8583Parser() {
                                     <CardDescription>Nhập log cần phân tích thông qua các cách sau</CardDescription>
                                 </div>
                                 <div className="ml-4 flex items-center gap-1">
-                                    <Select defaultValue="default">
+                                    {/* <Select defaultValue="default">
                                         <SelectTrigger className="w-40">
                                             <SelectValue placeholder="Chọn template" />
                                         </SelectTrigger>
@@ -236,14 +261,35 @@ export default function ISO8583Parser() {
                                             <SelectItem value="custom">Custom template</SelectItem>
                                             <SelectItem value="advanced">Advanced template</SelectItem>
                                         </SelectContent>
-                                    </Select>
+                                    </Select> */}
+                                    {templatesLoading ? (
+                                        <div className="text-sm text-gray-500">Loading templates...</div>
+                                    ) : templatesError ? (
+                                        <div className="text-sm text-red-500">Error: {templatesError}</div>
+                                    ) : (
+                                        <>
+                                            <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+                                                <SelectTrigger className="w-40">
+                                                    <SelectValue placeholder="Chọn template" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {templates.map((template) => (
+                                                        <SelectItem key={template.fileName} value={template.fileName}>
+                                                            {template.name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </>
+                                    )}
                                     <Button
                                         variant="ghost"
                                         size="sm"
                                         className="h-8 w-8 p-0 hover:bg-gray-100"
                                         onClick={() => {
-                                            alert("Chức năng này chưa được triển khai---Template Info")
+                                            setTemplateViewOpen(true)
                                         }}
+                                        disabled={!selectedTemplate}
                                         >
                                         <Info className="h-4 w-4" />
                                     </Button>
@@ -343,19 +389,19 @@ export default function ISO8583Parser() {
                         </Card> 
 
                         {/* Error Display */}
-                        {error && (
+                        {/* {error && (
                         <div className="mb-6 p-4 bg-red-100 border border-red-300 rounded-lg">
                             <p className="text-red-700 font-medium">Lỗi:</p>
                             <p className="text-red-600">{error}</p>
                         </div>
-                        )}
+                        )} */}
 
                         {/* Loading State */}
-                        {loading && (
+                        {/* {loading && (
                         <div className="mb-6 p-4 bg-blue-100 border border-blue-300 rounded-lg">
                             <p className="text-blue-700">Đang phân tích thông Log và kiểm tra tính hợp lệ của thông điệp...</p>
                         </div>
-                        )}
+                        )} */}
 
 
                         {/* Parsered field */}
@@ -373,8 +419,10 @@ export default function ISO8583Parser() {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="space-y-4">
-                                        {parsedMessage.map((parsedMess, idx) => (
-                                            <div key={idx} className={ `p-2 rounded-md shadow-sm ${ parsedMess.errorCount > 0 ? 'bg-red-300' : 'bg-green-300' }` }>
+                                        {parsedMessage.map((parsedMess, idx) => { 
+                                            const bg_color = parsedMess.errorCount > 0 ? 'bg-red-300' : 'bg-green-300';
+                                            return (
+                                            <div key={idx} className={ `p-2 rounded-md shadow-sm ${ bg_color }` }>
                                                 <div>
                                                     {filterdLog.length > 1 && (
                                                         <div className="text-base text-gray-500 mb-1 flex">
@@ -386,12 +434,12 @@ export default function ISO8583Parser() {
                                                     )}
                                                 </div>
                                                 {/*clickable */}
-                                                <div className="p-2 cursor-pointer hover:bg-gray-100 transition-colors duration-200 flex items-center justify-between" onClick={() => toggleExpanded(idx)}>
+                                                <div className="p-2 cursor-pointer hover: rounded transition-colors duration-200 flex items-center justify-between" onClick={() => toggleExpanded(idx)}>
                                                     <div className="text-sm text-gray-700 font-medium break-words relative overflow-hidden"
                                                         style={{ maxHeight: '1.5rem', lineHeight: '1.5rem' }}
                                                     >
                                                         {filterdLog[idx].content}
-                                                        <div className="absolute bottom-0 right-0 w-20 h-full bg-gradient-to-l from-gray-50 to-transparent pointer-events-none"></div>
+                                                        <div className="absolute bottom-0 right-0 w-20 h-full bg-gradient-to-l from-green-300 to-transparent pointer-events-none"></div>
                                                     </div>
                                                     {/* Status indicator */}
                                                     <Button
@@ -421,7 +469,7 @@ export default function ISO8583Parser() {
                                                     </div>
                                                 </div>
                                             </div>
-                                        ))}
+                                        )})}
                                     </div>
                                 </CardContent>
                             </Card>
@@ -430,7 +478,8 @@ export default function ISO8583Parser() {
                 </div>
             </div>
 
-
+            <ViewTemplateDetail open={templateViewOpen} onOpenChange={setTemplateViewOpen} data={getSelectedTemplateData()}/>
+            <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
             <UserGuideDialog open={userGuideOpen} onOpenChange={setUserGuideOpen} />
         </div>
     )

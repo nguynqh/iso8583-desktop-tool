@@ -41,7 +41,7 @@ func (a *App) startup(ctx context.Context) {
 	a.templateLoader = loader.NewTemplateLoader()
 
 	// Load the ISO8583 default template
-	templatePath := "internal/templates/iso8583.json"
+	templatePath := "frontend/src/templates/iso8583.json"
 	// templateName := filepath.Base(templatePath)
 	fmt.Printf("Loading template from: %s\n", templatePath)
 
