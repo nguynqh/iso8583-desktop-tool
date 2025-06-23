@@ -311,7 +311,7 @@ func (p *ISO8583Parser) validate(msg *models.ParsedMessage) {
 			expectedLen, err := strconv.Atoi(fieldDef.FieldLength)
 			if err == nil && field.ActualLength != expectedLen {
 				field.IsValid = false
-				field.Error = fmt.Sprintf("Fixed field must be %d chars, got %d", expectedLen, field.ActualLength)
+				field.Error = fmt.Sprintf("Trường mang kiểu Fixed bắt buộc phải %d ký tự, nhưng có %d", expectedLen, field.ActualLength)
 				errorCount++
 				fmt.Printf("Cộng error của: " + field.Name + " - " + field.Error + "\n")
 			}
@@ -352,7 +352,14 @@ func (p *ISO8583Parser) validate(msg *models.ParsedMessage) {
 
 		// Specific field validation
 		p.validateSpecificField(field, &errorCount)
+		// print errorCounte
+		fmt.Printf("Cộng error của: " + field.Name + " - " + field.Error + "\n")
 	}
+
+	msg.ErrorCount = errorCount
+	msg.IsValid = errorCount == 0
+
+	fmt.Printf("Validation completed: %d errors found\n", errorCount)
 }
 
 // validatePattern validates field against pattern (unchanged)

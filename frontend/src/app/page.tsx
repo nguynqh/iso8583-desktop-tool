@@ -23,6 +23,8 @@ import {
     Trash2,
     Info,
     Filter,
+    ChevronUp,
+    ChevronDown,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -445,7 +447,7 @@ export default function ISO8583Parser() {
                                 <CardHeader>
                                     <CardTitle>Kết quả phân tích</CardTitle>
                                     <CardDescription>
-                                        Hiển thị {filterdLog.length} message ISO8583 đã được tách từ log
+                                        Hiển thị {filterdLog.length} thông điệp ISO8583 đã được tách từ log
                                         <br />
                                         {/* {openIdx !== null && (
                                             <span className="text-blue-500">Đang mở message {openIdx + 1}</span>
@@ -455,45 +457,62 @@ export default function ISO8583Parser() {
                                 <CardContent>
                                     <div className="space-y-4">
                                         {parsedMessage.map((parsedMess, idx) => { 
-                                            const bg_color = parsedMess.errorCount > 0 ? 'bg-red-300' : 'bg-green-300';
+                                            const statusConfig = parsedMess.errorCount > 0 
+                                            ? {
+                                                bg: 'bg-red-50 border-red-200',
+                                                accent: 'border-l-4 border-l-red-500',
+                                                badge: 'bg-red-100 text-red-700 border-red-200',
+                                                gradient: 'from-red-50 to-transparent'
+                                            }
+                                            : {
+                                                bg: 'bg-emerald-50 border-emerald-200',
+                                                accent: 'border-l-4 border-l-emerald-500',
+                                                badge: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+                                                gradient: 'from-emerald-50 to-transparent'
+                                            };
+
+                                            const isError = parsedMess.errorCount > 0;
+
                                             return (
-                                            <div key={idx} className={ `p-2 rounded-md shadow-sm ${ bg_color }` }>
+                                            <div key={idx} className={ `p-4 rounded-lg border shadow-sm transition-all duration-200 hover:shadow-md ${statusConfig.bg} ${statusConfig.accent}` }>
+                                                {/* Message header info */}
                                                 <div>
                                                     {filterdLog.length > 1 && (
-                                                        <div className="text-base text-gray-500 mb-1 flex">
-                                                            Message {idx + 1}: 
-                                                            <div className="text-red-400 pl-2">
+                                                        <div className="text-sm text-gray-600 mb-2 flex items-center gap-2">
+                                                            <span className="font-medium">Thông điệp {idx + 1}</span>
+                                                            <div className="flex-1 h-px bg-gray-200"></div>
+                                                            <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
                                                                 {filterdLog[idx].description}
-                                                            </div>
+                                                            </span>
                                                         </div>   
                                                     )}
                                                 </div>
                                                 {/*clickable */}
-                                                <div className="p-2 cursor-pointer hover: rounded transition-colors duration-200 flex items-center justify-between" onClick={() => toggleExpanded(idx)}>
-                                                    <div className="text-sm text-gray-700 font-medium break-words relative overflow-hidden"
+                                                <div className="cursor-pointer hover:bg-black/5 rounded-md transition-colors duration-200 flex items-center justify-between p-3 relative group" onClick={() => toggleExpanded(idx)}>
+                                                    <div className="text-sm text-gray-700 font-mono break-words relative overflow-hidden flex-1"
                                                         style={{ maxHeight: '1.5rem', lineHeight: '1.5rem' }}
                                                     >
                                                         {filterdLog[idx].content}
-                                                        <div className="absolute bottom-0 right-0 w-20 h-full bg-gradient-to-l from-green-300 to-transparent pointer-events-none"></div>
+                                                        <div className={`absolute bottom-0 right-0 w-20 h-full bg-gradient-to-l ${statusConfig.gradient} group-hover:opacity-5 transition-opacity duration-200 pointer-events-none`}></div>
                                                     </div>
                                                     {/* Status indicator */}
-                                                    <Button
-                                                        className={`
-                                                            ml-2 text-xs flex items-center gap-1 px-2 py-0.5 rounded-xl font-semibold
-                                                            transition-colors duration-150 focus:outline-none
-                                                            ${expandedItems.has(idx)
-                                                            ? "text-[#14b8a6] bg-[#a7f3d0]"
-                                                            : "text-[#6366f1] bg-[#e0e7ff]"}
-                                                        `}
-                                                        onClick={() => toggleExpanded(idx)}
-                                                        tabIndex={0}
-                                                    >
-                                                        {expandedItems.has(idx) ? 'Thu gọn' : 'Mở rộng'}
-                                                        <div className={`w-2 px-1.5 h-2 rounded-full ${
-                                                            expandedItems.has(idx) ? 'bg-[#38bdf8]' : 'bg-[#d1d5db]'
-                                                        }`}>
-                                                        </div>
-                                                    </Button>
+                                                    <div className="ml-4 flex items-center gap-2">
+                                                        <span className={`text-xs px-3 py-1 rounded-full font-medium border ${statusConfig.badge}`}>
+                                                            {parsedMess.errorCount > 0 ? `${parsedMess.errorCount} Lỗi` : 'Hợp lệ'}
+                                                        </span>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="h-8 px-3 text-xs"
+                                                            onClick={() => toggleExpanded(idx)}
+                                                        >
+                                                            {expandedItems.has(idx) ? (
+                                                                <>Thu gọn <ChevronUp className="w-3 h-3 ml-1" /></>
+                                                            ) : (
+                                                                <>Mở rộng <ChevronDown className="w-3 h-3 ml-1" /></>
+                                                            )}
+                                                        </Button>
+                                                    </div>
                                                 </div>
                                                 {/* Expandable content*/}
                                                 <div className={`overflow-hidden transition-all duration-400 ease-in-out ${
@@ -513,7 +532,7 @@ export default function ISO8583Parser() {
                 </div>
             </div>
 
-            <ViewTemplateDetail open={templateViewOpen} onOpenChange={setTemplateViewOpen} data={getSelectedTemplateData()}/>
+            <ViewTemplateDetail open={templateViewOpen} onOpenChange={setTemplateViewOpen} data={getSelectedTemplateData()} name={selectedTemplate}/>
             <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
             <UserGuideDialog open={userGuideOpen} onOpenChange={setUserGuideOpen} />
         </div>

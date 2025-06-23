@@ -8,16 +8,17 @@ interface UserGuideDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     data?: any;
+    name?: string;
 }
 
-export function ViewTemplateDetail({ open, onOpenChange, data }: UserGuideDialogProps) {
+export function ViewTemplateDetail({ open, onOpenChange, data, name }: UserGuideDialogProps) {
     const jsonContent = data ? JSON.stringify(data, null, 2) : "No data available";
     
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Nội dung của template đang sử dụng</DialogTitle>
+                    <DialogTitle>Nội dung của template: {name} đang sử dụng</DialogTitle>
                 </DialogHeader>
                 <Card>
                     <CardContent className="p-0">
