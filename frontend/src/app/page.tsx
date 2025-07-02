@@ -28,7 +28,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 
-import { toast } from "@/hooks/use-toast"
+import { toast } from "@/components/ui/use-toast"
 import { UserGuideDialog } from "@/components/user-guide-dialog"
 
 
@@ -148,10 +148,43 @@ export default function ISO8583Parser() {
         return
         }
 
+        // Check minimum length
+        if (inputLog.trim().length < 10) {
+            toast({
+                title: "Lỗi", 
+                description: "Log quá ngắn, vui lòng nhập log ISO8583 hợp lệ",
+                variant: "destructive",
+            })
+            return
+        }
+
         setIsProcessing(true)
+
+        setFilteredLog([])
+        setParsedMessage([])
 
         try {
             const logArr = await FilterLog(inputLog)
+
+            //  Check if logArr is null or not an array
+            if (!logArr) {
+                throw new Error("FilterLog returned null")
+            }
+            
+            if (!Array.isArray(logArr)) {
+                throw new Error("FilterLog returned non-array result")
+            }
+            
+            if (logArr.length === 0) {
+                toast({
+                    title: "Thông báo",
+                    description: "Không tìm thấy thông điệp ISO8583 trong log. Vui lòng kiểm tra định dạng.",
+                    variant: "destructive",
+                })
+                setIsProcessing(false)
+                return
+            }
+
             setFilteredLog( logArr )
 
             const parseResults = await Promise.all(
@@ -167,7 +200,9 @@ export default function ISO8583Parser() {
                 description: "Đã phân tích log thành công",
             });
         }
-        catch (error) {}
+        catch (error) {
+
+        }
         
         setIsProcessing(false)
     }

@@ -1,6 +1,6 @@
 "use client"
 
-// import { SchemaAnalyzer } from "@/components/schema-analyzer"
+import { SchemaAnalyzer } from "@/components/schema-analyzer"
 
 export default function SchemaAnalyzerPage() {
   return (
@@ -10,7 +10,7 @@ export default function SchemaAnalyzerPage() {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Schema Log Analyzer</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Phân tích log theo schema/template tùy chỉnh</h1>
               <p className="text-gray-600">Phân tích log theo schema template tùy chỉnh</p>
             </div>
           </div>
@@ -18,7 +18,7 @@ export default function SchemaAnalyzerPage() {
       </div>
 
       <div className="container mx-auto px-6 py-6">
-        {/* <SchemaAnalyzer /> */}
+        <SchemaAnalyzer />
       </div>
     </div>
   )
