@@ -12,6 +12,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useTemplate } from "@/hooks/use-template";
+import { Checkbox } from "@/components/ui/checkbox"
+import { Badge } from '@/components/ui/badge';
+
 
 import {
     Download,
@@ -24,7 +27,7 @@ import {
     Info,
     Filter,
     ChevronUp,
-    ChevronDown,
+    ChevronDown
 } from "lucide-react"
 import Link from "next/link"
 
@@ -33,13 +36,33 @@ import { UserGuideDialog } from "@/components/user-guide-dialog"
 
 
 // import from backend
-import { FilterLog, ParseAndValidateMessage, ParseJsonMessage, ParseSimpleMessage } from "../../wailsjs/go/main/App"
+import { FilterLog, ParseAndValidateMessage, ParseJsonMessage, ParseSimpleMessage, ListTemplateFiles } from "../../wailsjs/go/main/App"
 import { main, models } from "../../wailsjs/go/models";
 import { ParsedMessageTable } from "@/components/ParsedMessageTable";
 import { SettingsDialog } from "@/components/settings-dialog";
 import { ViewTemplateDetail } from "@/components/view-tamplate-detail";
+import { get } from "http";
+import { set } from "date-fns";
 
 export default function ISO8583Parser() {
+
+    const [adTemplates, setAdTemplates] = useState<string[]>([]);
+    const [selectedTemplate, setSelectedTemplate] = useState<string>("");
+
+
+    const handleSelectAdvancedTemplate = async (open: boolean) => {
+        if (open) {
+            try {
+                var rs = await ListTemplateFiles();
+                setAdTemplates(rs);
+            } catch (error) {
+                toast({
+                    title: "Lỗi",
+                    description: "Xảy ra lỗi khi load các templates"
+                })
+            }
+        }
+    }
 
     //upload file
     const [selectedFile, setSelectedFile] = useState<File | null>()
@@ -99,7 +122,6 @@ export default function ISO8583Parser() {
     
     // select teamplate and view template data
     const { templates, loading: templatesLoading, error: templatesError } = useTemplate();
-    const [selectedTemplate, setSelectedTemplate] = useState<string>("");
     const [templateViewOpen, setTemplateViewOpen] = useState(false)
     const getSelectedTemplateData = () => {
         if (!selectedTemplate) return null;
@@ -112,6 +134,52 @@ export default function ISO8583Parser() {
         }
         
         return template.data;
+    }
+
+    // advanced template select for validation
+    const [templateForAdvancedValidation, setTemplateForAdvancedValidation] = useState<any[]>([]);
+    const [checked, setChecked] = useState(false);
+    const messageGroups = [
+        {
+            mti: '0200',
+            channel: 'CSBIST',
+            pcode: '010000',
+            description: 'Authorization Request'
+        },
+        {
+            mti: '0210',
+            channel: 'CSBIST',
+            pcode: '010000',
+            description: 'Authorization Response'
+        },
+        {
+            mti: '0400',
+            channel: 'CSBIST',
+            pcode: '010000',
+            description: 'Reversal Request'
+        }
+    ];
+    const [selectedGroupIndex, setSelectedGroupIndex] = useState(0);
+
+    const testClick = () => {
+        try {
+            fetch("/templates/502010.json")
+            .then(response => response.json())
+            .then((data) => setTemplateForAdvancedValidation(data))
+
+            toast({
+                title: "Thông báo",
+                description: "Đã tải template cho kiểm tra nâng cao thành công",
+            })
+
+        } catch (error) {
+            console.error("Error loading template for advanced validation:", error);
+            toast({
+                title: "Lỗi",
+                description: "Không thể tải template cho kiểm tra nâng cao. Vui lòng thử lại sau.",
+                variant: "destructive",
+            })
+        }
     }
 
 
@@ -206,6 +274,8 @@ export default function ISO8583Parser() {
         
         setIsProcessing(false)
     }
+
+
 
 
     return (
@@ -324,7 +394,7 @@ export default function ISO8583Parser() {
                                     <CardDescription className="pt-1">Nhập log cần phân tích thông qua các cách sau</CardDescription>
                                 </div>
                                 <div className="ml-4 flex items-center gap-1">
-                                    {templatesLoading ? (
+                                    {/* {templatesLoading ? (
                                         <div className="text-sm text-gray-500">Loading templates...</div>
                                     ) : templatesError ? (
                                         <div className="text-sm text-red-500">Error: {templatesError}</div>
@@ -343,13 +413,15 @@ export default function ISO8583Parser() {
                                                 </SelectContent>
                                             </Select>
                                         </>
-                                    )}
+                                    )} */}
+                                    Schema đang sử dụng: ISO8583 (128 fields)
                                     <Button
                                         variant="ghost"
                                         size="sm"
                                         className="h-8 w-8 p-0 hover:bg-gray-100"
                                         onClick={() => {
                                             setTemplateViewOpen(true)
+                                            // data = getSelectedTemplateData();
                                         }}
                                         disabled={!selectedTemplate}
                                         >
@@ -365,7 +437,145 @@ export default function ISO8583Parser() {
                                         <TabsTrigger value="file">Tải file</TabsTrigger>
                                         <TabsTrigger value="clipboard">Từ clipboard</TabsTrigger>
                                     </TabsList>
+                                    <Separator className="my-2" />
+                                    <div className="bg-white border rounded-lg p-6 shadow-sm">
+                                        <div className="flex items-center gap-2">
+                                            <Checkbox
+                                            id="advanced-filter"
+                                            checked={checked}
+                                            onCheckedChange={(value) => setChecked(value === true)}
+                                            />
+                                            <Label htmlFor="advanced-filter" className="cursor-pointer text-base font-medium">
+                                            Lọc thông điệp nâng cao
+                                            </Label>
+                                        </div>
 
+                                        <div
+                                            className={`
+                                            transition-all duration-500 overflow-hidden p-2
+                                            ${checked ? "max-h-[500px] opacity-100 mt-2" : "max-h-0 opacity-0"}
+                                            `}
+                                        >
+                                            <div className="flex flex-col gap-1">
+                                                <Label htmlFor="template-check" className="text-sm font-semibold">Template kiểm tra</Label>
+                                                {templatesLoading ? (
+                                                    <div className="text-sm text-gray-500">Loading templates...</div>
+                                                ) : templatesError ? (
+                                                    <div className="text-sm text-red-500">Error: {templatesError}</div>
+                                                ) : (
+                                                    <>
+                                                        
+                                                        <div className="flex items-center">
+                                                            <Select value={selectedTemplate} onValueChange={setSelectedTemplate} onOpenChange={handleSelectAdvancedTemplate}>
+                                                                <SelectTrigger>
+                                                                    <SelectValue placeholder="Chọn template" />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    {adTemplates && adTemplates.length > 0 ? (
+                                                                        adTemplates.map((template) => (
+                                                                            <SelectItem key={template} value={template}>
+                                                                                {template}
+                                                                            </SelectItem>
+                                                                        ))
+                                                                    ) : (
+                                                                        <SelectItem value="no-loaded-template" disabled>
+                                                                            Không có template nào
+                                                                        </SelectItem>
+                                                                    )}
+                                                                </SelectContent>
+                                                            </Select>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                className="h-8 w-8 p-0 hover:bg-gray-100"
+                                                                onClick={() => {
+                                                                    setTemplateViewOpen(true)
+                                                                }}
+                                                                disabled={!selectedTemplate}
+                                                                >
+                                                                <Info className="h-4 w-4" />
+                                                            </Button>
+                                                        </div>
+                                                        {selectedTemplate && (() => {
+                                                            const data = getSelectedTemplateData();
+                                                            const fieldNumbers = data?.map((field: any) => `F${field.FieldNumber}`).join(', ') || '';
+                                                            return data?.length > 0 ? (
+                                                                <div className="ml-3 text-xs text-gray-600">
+                                                                    <span className="font-medium">
+                                                                        Có tổng {data.length} fields: {fieldNumbers}
+                                                                    </span>
+                                                                </div>
+                                                            ) : null;
+                                                        })()}
+                                                    </>
+                                                )}
+                                            </div>
+
+
+                                            {messageGroups.length > 1 && (
+                                                <div className="flex items-center gap-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                                    <Label className="text-sm font-medium text-blue-700">
+                                                        Nhóm message:
+                                                    </Label>
+                                                    <Select 
+                                                        value={selectedGroupIndex.toString()} 
+                                                        onValueChange={(value) => setSelectedGroupIndex(parseInt(value))}
+                                                    >
+                                                        <SelectTrigger className="w-auto min-w-[250px] bg-white">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {messageGroups.map((group, index) => (
+                                                                <SelectItem key={index} value={index.toString()}>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <Badge variant="secondary" className="text-xs">
+                                                                            {group.mti}
+                                                                        </Badge>
+                                                                        <span>{group.description || `${group.channel} - ${group.mti}`}</span>
+                                                                    </div>
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <Badge variant="outline" className="ml-auto">
+                                                        {selectedGroupIndex + 1}/{messageGroups.length}
+                                                    </Badge>
+                                                </div>
+                                            )}
+
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 items-center">
+                                                <div className="flex flex-col gap-2">
+                                                    <Label htmlFor="filter-channel" className="text-sm">Kênh xử lý</Label>
+                                                    <Input
+                                                        id="filter-channel"
+                                                        type="text"
+                                                        className="w-full"
+                                                        placeholder="Nhập kênh xử lý (ví dụ: CSBIST)"
+                                                    />
+                                                </div>
+                                                <div className="flex flex-col gap-2">
+                                                    <Label htmlFor="filter-mti" className="text-sm">MTI</Label>
+                                                    <Input
+                                                        id="filter-mti"
+                                                        type="text"
+                                                        className="w-full"
+                                                        placeholder="Nhập MTI (ví dụ: 0200)"
+                                                    />
+                                                </div>
+                                                <div className="flex flex-col gap-2">
+                                                    <Label htmlFor="filter-pcode" className="text-sm">PCODE</Label>
+                                                    <Input
+                                                        id="filter-pcode"
+                                                        type="text"
+                                                        className="w-full"
+                                                        placeholder="Nhập PCODE (ví dụ: 010000)"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div> 
+                                    </div>
+                                    <Separator className="my-2" />
+                                    {/* Tab content */}
                                     <TabsContent value="manual" className="space-y-4">
                                         <div>
                                         <Label htmlFor="log-input">Nội dung log</Label>
@@ -431,7 +641,12 @@ export default function ISO8583Parser() {
                                 </Tabs>
 
                                 <div className="flex gap-2 mt-4">
-                                <Button onClick={handleParseLog} disabled={isProcessing || !inputLog.trim()} className="flex-1">
+                                <Button onClick={
+                                    () => {
+                                        handleParseLog()
+                                        testClick()
+                                    }
+                                    } disabled={isProcessing || !inputLog.trim()} className="flex-1">
                                     {isProcessing ? (
                                     <>
                                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -450,7 +665,7 @@ export default function ISO8583Parser() {
                                     setInputLog("")
                                     setShowTextarea(false)
                                     setFilteredLog([])
-                                    setValidationResults({ isValid: true, errors: [], warnings: [] })
+                                    // setValidationResults({ isValid: true, errors: [], warnings: [] })
                                     }}
                                 >
                                     <Trash2 className="h-4 w-4 mr-2" />

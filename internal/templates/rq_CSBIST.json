@@ -1,0 +1,51 @@
+[
+  {
+    "FieldNumber": "0",
+    "FieldType": "Fixed",
+    "FieldLength": "4",
+    "FieldPattern": "",
+    "FieldDescription": "Message Type Indicator"
+  },
+  {
+    "FieldNumber": "1",
+    "FieldType": "Bitmap",
+    "FieldLength": "16",
+    "FieldPattern": "",
+    "FieldDescription": "Bitmap"
+  },
+  {
+    "FieldNumber": "2",
+    "FieldType": "LLVAR",
+    "FieldLength": "19",
+    "FieldPattern": "{6}-{4}-{4}-{4}",
+    "FieldDescription": "Primary Account Number (PAN)"
+  },
+  {
+    "FieldNumber": "3",
+    "FieldType": "Fixed",
+    "FieldLength": "6",
+    "FieldPattern": "",
+    "FieldDescription": "Processing Code"
+  },
+  {
+    "FieldNumber": "4",
+    "FieldType": "Fixed",
+    "FieldLength": "12",
+    "FieldPattern": "",
+    "FieldDescription": "Transaction Amount"
+  },
+  {
+    "FieldNumber": "5",
+    "FieldType": "Fixed",
+    "FieldLength": "12",
+    "FieldPattern": "",
+    "FieldDescription": "Settlement Amount"
+  },
+  {
+    "FieldNumber": "6",
+    "FieldType": "Fixed",
+    "FieldLength": "12",
+    "FieldPattern": "",
+    "FieldDescription": "Cardholder Billing Amount"
+  }
+]

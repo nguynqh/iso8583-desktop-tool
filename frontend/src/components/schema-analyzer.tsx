@@ -765,8 +765,8 @@ export function SchemaAnalyzer() {
                         {/* Filter and Actions */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                             <div>
-                            {/* <Label htmlFor="filter-pattern">Bộ lọc Pattern (tùy chọn)</Label>
-                            <div className="flex gap-2 mt-2">
+                            <Label htmlFor="filter-pattern">Bộ lọc Pattern (tùy chọn)</Label>
+                            {/* <div className="flex gap-2 mt-2">
                                 <Input
                                 id="filter-pattern"
                                 placeholder="Ví dụ: to, fr, ERROR..."
@@ -789,7 +789,7 @@ export function SchemaAnalyzer() {
                                 ) : (
                                 <>
                                     <Play className="h-4 w-4 mr-2" />
-                                    Phân tích Log
+                                    Phân tích Logg
                                 </>
                                 )}
                             </Button>
@@ -820,8 +820,17 @@ export function SchemaAnalyzer() {
                         <CardDescription>Tạo template schema tùy chỉnh từ nội dung hoặc hình ảnh</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
+                        {/* Template Name */}
+                        <div className="space-y-2">
+                            <Label  htmlFor="new-template-name" className="text-base">Tên template</Label>
+                            <Input
+                                id="new-template-name"
+                                placeholder="Nhập tên template mới..."
+                                className="w-2/6"
+                            />
+                        </div>
                         {/* Template Type Selection */}
-                        <div>
+                        <div className="space-y-4">
                             <Label>Loại Template</Label>
                             <RadioGroup
                             value={newTemplateType}

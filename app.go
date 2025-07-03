@@ -41,7 +41,7 @@ func (a *App) startup(ctx context.Context) {
 	a.templateLoader = loader.NewTemplateLoader()
 
 	// Load the ISO8583 default template
-	templatePath := "frontend/src/templates/iso8583.json"
+	templatePath := "internal/default_schema/iso8583.json"
 	// templateName := filepath.Base(templatePath)
 	fmt.Printf("Loading template from: %s\n", templatePath)
 
@@ -55,6 +55,7 @@ func (a *App) startup(ctx context.Context) {
 
 	// Initialize parser with template loader
 	a.parser = parser.NewISO8583Parser(a.templateLoader)
+
 }
 
 // domReady is called after front-end resources have been loaded
@@ -148,4 +149,11 @@ func (a *App) ParseJsonMessage(message string) (*models.ParsedMessage, error) {
 // LoadTemplate loads a new template file
 func (a *App) LoadTemplate(templatePath string) error {
 	return a.templateLoader.LoadTemplate(templatePath)
+}
+
+// Interactive File --------------------------------------------------
+func (a *App) ListTemplateFiles() ([]string, error) {
+	rs, err := loader.ListTemplateFiles("internal/templates/")
+	fmt.Printf("Found %d template files\n", len(rs))
+	return rs, err
 }

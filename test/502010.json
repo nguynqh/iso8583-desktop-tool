@@ -1,0 +1,114 @@
+
+[
+    {
+        "MTI": "0200",
+        "Channel": "CSBIST",
+        "Fields": [
+            {
+                "FieldNumber": "2",
+                "FieldType": "LLVAR",
+                "FieldLength": "19",
+                "FieldPattern": "{6}-{4}-{4}-{4}",
+                "FieldDescription": "Primary Account Number (PAN)"
+            },
+            {
+                "FieldNumber": "3",
+                "FieldType": "Fixed",
+                "FieldLength": "6",
+                "FieldPattern": "",
+                "FieldDescription": "Processing Code"
+            },
+            {
+                "FieldNumber": "4",
+                "FieldType": "Fixed",
+                "FieldLength": "12",
+                "FieldPattern": "",
+            "FieldDescription": "Transaction Amount"
+            },
+            {
+                "FieldNumber": "7",
+                "FieldType": "Fixed",
+                "FieldLength": "10",
+                "FieldPattern": "MMDDhhmmss",
+                "FieldDescription": "Transmission Date and Time"
+            },
+            {
+                "FieldNumber": "11",
+                "FieldType": "Fixed",
+                "FieldLength": "6",
+                "FieldPattern": "",
+                "FieldDescription": "System Trace Audit Number (STAN)"
+            },
+            {
+                "FieldNumber": "12",
+                "FieldType": "Fixed",
+                "FieldLength": "6",
+                "FieldPattern": "hhmmss",
+                "FieldDescription": "Local Transaction Time"
+            },
+            {
+                "FieldNumber": "13",
+                "FieldType": "Fixed",
+                "FieldLength": "4",
+                "FieldPattern": "MMDD",
+                "FieldDescription": "Local Transaction Date"
+            }
+        ]   
+    },
+    {
+
+        "MTI": "0210",
+        "Channel": "CSBIST",
+        "Fields": [
+            {
+                "FieldNumber": "2",
+                "FieldType": "LLVAR",
+                "FieldLength": "19",
+                "FieldPattern": "{6}-{4}-{4}-{4}",
+                "FieldDescription": "Primary Account Number (PAN)"
+            },
+            {
+                "FieldNumber": "3",
+                "FieldType": "Fixed",
+                "FieldLength": "6",
+                "FieldPattern": "",
+                "FieldDescription": "Processing Code"
+            },
+            {
+                "FieldNumber": "4",
+                "FieldType": "Fixed",
+                "FieldLength": "12",
+                "FieldPattern": "",
+                "FieldDescription": "Transaction Amount"
+            },
+            {
+                "FieldNumber": "7",
+                "FieldType": "Fixed",
+                "FieldLength": "10",
+                "FieldPattern": "MMDDhhmmss",
+            "FieldDescription": "Transmission Date and Time"
+            },
+            {
+                "FieldNumber": "11",
+                "FieldType": "Fixed",
+                "FieldLength": "6",
+                "FieldPattern": "",
+                "FieldDescription": "System Trace Audit Number (STAN)"
+            },
+            {
+                "FieldNumber": "12",
+                "FieldType": "Fixed",
+                "FieldLength": "6",
+                "FieldPattern": "hhmmss",
+                "FieldDescription": "Local Transaction Time"
+            },
+            {
+                "FieldNumber": "13",
+                "FieldType": "Fixed",
+                "FieldLength": "4",
+                "FieldPattern": "MMDD",
+                "FieldDescription": "Local Transaction Date"
+            }
+        ]
+    }
+]

@@ -63,7 +63,7 @@ export const ParsedMessageTable = ({ message } : { message: models.ParsedMessage
                 <Alert className="border-red-200 bg-red-50">
                     <AlertTriangle className="h-4 w-4 text-red-600" />
                     <AlertDescription className="text-red-800">
-                        Tìm thấy {message.errorCount} lỗi {message.errorCount > 1 ? 's' : ''} trong thông điệp này. Kiểm tra chi tiết các trường dữ liệu bên dưới.
+                        Tìm thấy {message.errorCount} lỗi {message.errorCount > 1 ? 'sai' : ''} trong thông điệp này. Kiểm tra chi tiết các trường dữ liệu bên dưới.
                     </AlertDescription>
                 </Alert>
             )}

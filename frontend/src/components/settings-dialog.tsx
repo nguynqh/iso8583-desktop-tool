@@ -197,10 +197,10 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
         <Tabs defaultValue="app-settings" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="app-settings">
+            {/* <TabsTrigger value="app-settings">
               Cài đặt ứng dụng
               {appSettingsChanged && <Badge variant="destructive" className="ml-2 h-2 w-2 p-0" />}
-            </TabsTrigger>
+            </TabsTrigger> */}
             <TabsTrigger value="field-definitions">
               Định nghĩa Field
               {fieldDefinitionsChanged && <Badge variant="destructive" className="ml-2 h-2 w-2 p-0" />}

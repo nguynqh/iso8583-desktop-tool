@@ -6,6 +6,10 @@ export function FilterLog(arg1) {
   return window['go']['main']['App']['FilterLog'](arg1);
 }
 
+export function ListTemplateFiles() {
+  return window['go']['main']['App']['ListTemplateFiles']();
+}
+
 export function LoadTemplate(arg1) {
   return window['go']['main']['App']['LoadTemplate'](arg1);
 }

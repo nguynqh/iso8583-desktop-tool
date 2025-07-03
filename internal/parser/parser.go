@@ -309,7 +309,10 @@ func (p *ISO8583Parser) validate(msg *models.ParsedMessage) {
 		switch fieldDef.FieldType {
 		case "Fixed":
 			expectedLen, err := strconv.Atoi(fieldDef.FieldLength)
-			if err == nil && field.ActualLength != expectedLen {
+			fmt.Printf("Expected length for %s: %d\n", field.Name, expectedLen)
+			if field.Value == "MASKED" {
+				continue
+			} else if err == nil && field.ActualLength != expectedLen {
 				field.IsValid = false
 				field.Error = fmt.Sprintf("Trường mang kiểu Fixed bắt buộc phải %d ký tự, nhưng có %d", expectedLen, field.ActualLength)
 				errorCount++

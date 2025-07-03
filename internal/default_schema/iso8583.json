@@ -1,0 +1,905 @@
+[
+  {
+    "FieldNumber": "0",
+    "FieldType": "Fixed",
+    "FieldLength": "4",
+    "FieldPattern": "",
+    "FieldDescription": "Message Type Indicator"
+  },
+  {
+    "FieldNumber": "1",
+    "FieldType": "Bitmap",
+    "FieldLength": "16",
+    "FieldPattern": "",
+    "FieldDescription": "Bitmap"
+  },
+  {
+    "FieldNumber": "2",
+    "FieldType": "LLVAR",
+    "FieldLength": "19",
+    "FieldPattern": "{6}-{4}-{4}-{4}",
+    "FieldDescription": "Primary Account Number (PAN)"
+  },
+  {
+    "FieldNumber": "3",
+    "FieldType": "Fixed",
+    "FieldLength": "6",
+    "FieldPattern": "",
+    "FieldDescription": "Processing Code"
+  },
+  {
+    "FieldNumber": "4",
+    "FieldType": "Fixed",
+    "FieldLength": "12",
+    "FieldPattern": "",
+    "FieldDescription": "Transaction Amount"
+  },
+  {
+    "FieldNumber": "5",
+    "FieldType": "Fixed",
+    "FieldLength": "12",
+    "FieldPattern": "",
+    "FieldDescription": "Settlement Amount"
+  },
+  {
+    "FieldNumber": "6",
+    "FieldType": "Fixed",
+    "FieldLength": "12",
+    "FieldPattern": "",
+    "FieldDescription": "Cardholder Billing Amount"
+  },
+  {
+    "FieldNumber": "7",
+    "FieldType": "Fixed",
+    "FieldLength": "10",
+    "FieldPattern": "MMDDhhmmss",
+    "FieldDescription": "Transmission Date and Time"
+  },
+  {
+    "FieldNumber": "8",
+    "FieldType": "Fixed",
+    "FieldLength": "8",
+    "FieldPattern": "",
+    "FieldDescription": "Cardholder Billing Fee Amount"
+  },
+  {
+    "FieldNumber": "9",
+    "FieldType": "Fixed",
+    "FieldLength": "8",
+    "FieldPattern": "",
+    "FieldDescription": "Settlement Conversion Rate"
+  },
+  {
+    "FieldNumber": "10",
+    "FieldType": "Fixed",
+    "FieldLength": "8",
+    "FieldPattern": "",
+    "FieldDescription": "Cardholder Billing Conversion Rate"
+  },
+  {
+    "FieldNumber": "11",
+    "FieldType": "Fixed",
+    "FieldLength": "6",
+    "FieldPattern": "",
+    "FieldDescription": "System Trace Audit Number (STAN)"
+  },
+  {
+    "FieldNumber": "12",
+    "FieldType": "Fixed",
+    "FieldLength": "6",
+    "FieldPattern": "hhmmss",
+    "FieldDescription": "Local Transaction Time"
+  },
+  {
+    "FieldNumber": "13",
+    "FieldType": "Fixed",
+    "FieldLength": "4",
+    "FieldPattern": "MMDD",
+    "FieldDescription": "Local Transaction Date"
+  },
+  {
+    "FieldNumber": "14",
+    "FieldType": "Fixed",
+    "FieldLength": "4",
+    "FieldPattern": "YYMM",
+    "FieldDescription": "Expiration Date"
+  },
+  {
+    "FieldNumber": "15",
+    "FieldType": "Fixed",
+    "FieldLength": "4",
+    "FieldPattern": "MMDD",
+    "FieldDescription": "Settlement Date"
+  },
+  {
+    "FieldNumber": "16",
+    "FieldType": "Fixed",
+    "FieldLength": "4",
+    "FieldPattern": "MMDD",
+    "FieldDescription": "Currency Conversion Date"
+  },
+  {
+    "FieldNumber": "17",
+    "FieldType": "Fixed",
+    "FieldLength": "4",
+    "FieldPattern": "MMDD",
+    "FieldDescription": "Capture Date"
+  },
+  {
+    "FieldNumber": "18",
+    "FieldType": "Fixed",
+    "FieldLength": "4",
+    "FieldPattern": "",
+    "FieldDescription": "Merchant Type"
+  },
+  {
+    "FieldNumber": "19",
+    "FieldType": "Fixed",
+    "FieldLength": "3",
+    "FieldPattern": "",
+    "FieldDescription": "Acquiring Institution Country Code"
+  },
+  {
+    "FieldNumber": "20",
+    "FieldType": "Fixed",
+    "FieldLength": "3",
+    "FieldPattern": "",
+    "FieldDescription": "PAN Extended Country Code"
+  },
+  {
+    "FieldNumber": "21",
+    "FieldType": "Fixed",
+    "FieldLength": "3",
+    "FieldPattern": "",
+    "FieldDescription": "Forwarding Institution Country Code"
+  },
+  {
+    "FieldNumber": "22",
+    "FieldType": "Fixed",
+    "FieldLength": "3",
+    "FieldPattern": "",
+    "FieldDescription": "Point of Service Entry Mode"
+  },
+  {
+    "FieldNumber": "23",
+    "FieldType": "Fixed",
+    "FieldLength": "3",
+    "FieldPattern": "",
+    "FieldDescription": "Card Sequence Number"
+  },
+  {
+    "FieldNumber": "24",
+    "FieldType": "Fixed",
+    "FieldLength": "3",
+    "FieldPattern": "",
+    "FieldDescription": "Network International Identifier"
+  },
+  {
+    "FieldNumber": "25",
+    "FieldType": "Fixed",
+    "FieldLength": "2",
+    "FieldPattern": "",
+    "FieldDescription": "Point of Service Condition Code"
+  },
+  {
+    "FieldNumber": "26",
+    "FieldType": "Fixed",
+    "FieldLength": "2",
+    "FieldPattern": "",
+    "FieldDescription": "Point of Service PIN Capture Code"
+  },
+  {
+    "FieldNumber": "27",
+    "FieldType": "Fixed",
+    "FieldLength": "1",
+    "FieldPattern": "",
+    "FieldDescription": "Authorization Identification Response Length"
+  },
+  {
+    "FieldNumber": "28",
+    "FieldType": "Fixed",
+    "FieldLength": "9",
+    "FieldPattern": "",
+    "FieldDescription": "Transaction Fee Amount"
+  },
+  {
+    "FieldNumber": "29",
+    "FieldType": "Fixed",
+    "FieldLength": "9",
+    "FieldPattern": "",
+    "FieldDescription": "Settlement Fee Amount"
+  },
+  {
+    "FieldNumber": "30",
+    "FieldType": "Fixed",
+    "FieldLength": "9",
+    "FieldPattern": "",
+    "FieldDescription": "Transaction Processing Fee Amount"
+  },
+  {
+    "FieldNumber": "31",
+    "FieldType": "Fixed",
+    "FieldLength": "9",
+    "FieldPattern": "",
+    "FieldDescription": "Settlement Processing Fee Amount"
+  },
+  {
+    "FieldNumber": "32",
+    "FieldType": "LLVAR",
+    "FieldLength": "11",
+    "FieldPattern": "",
+    "FieldDescription": "Acquiring Institution Identification Code"
+  },
+  {
+    "FieldNumber": "33",
+    "FieldType": "LLVAR",
+    "FieldLength": "11",
+    "FieldPattern": "",
+    "FieldDescription": "Forwarding Institution Identification Code"
+  },
+  {
+    "FieldNumber": "34",
+    "FieldType": "LLVAR",
+    "FieldLength": "28",
+    "FieldPattern": "",
+    "FieldDescription": "Primary Account Number Extended"
+  },
+  {
+    "FieldNumber": "35",
+    "FieldType": "LLVAR",
+    "FieldLength": "37",
+    "FieldPattern": "",
+    "FieldDescription": "Track 2 Data"
+  },
+  {
+    "FieldNumber": "36",
+    "FieldType": "LLLVAR",
+    "FieldLength": "104",
+    "FieldPattern": "",
+    "FieldDescription": "Track 3 Data"
+  },
+  {
+    "FieldNumber": "37",
+    "FieldType": "Fixed",
+    "FieldLength": "12",
+    "FieldPattern": "",
+    "FieldDescription": "Retrieval Reference Number"
+  },
+  {
+    "FieldNumber": "38",
+    "FieldType": "Fixed",
+    "FieldLength": "6",
+    "FieldPattern": "",
+    "FieldDescription": "Authorization Identification Response"
+  },
+  {
+    "FieldNumber": "39",
+    "FieldType": "Fixed",
+    "FieldLength": "2",
+    "FieldPattern": "",
+    "FieldDescription": "Response Code"
+  },
+  {
+    "FieldNumber": "40",
+    "FieldType": "Fixed",
+    "FieldLength": "3",
+    "FieldPattern": "",
+    "FieldDescription": "Service Restriction Code"
+  },
+  {
+    "FieldNumber": "41",
+    "FieldType": "Fixed",
+    "FieldLength": "8",
+    "FieldPattern": "",
+    "FieldDescription": "Card Acceptor Terminal Identification"
+  },
+  {
+    "FieldNumber": "42",
+    "FieldType": "Fixed",
+    "FieldLength": "15",
+    "FieldPattern": "",
+    "FieldDescription": "Card Acceptor Identification Code"
+  },
+  {
+    "FieldNumber": "43",
+    "FieldType": "Fixed",
+    "FieldLength": "40",
+    "FieldPattern": "",
+    "FieldDescription": "Card Acceptor Name/Location"
+  },
+  {
+    "FieldNumber": "44",
+    "FieldType": "LLVAR",
+    "FieldLength": "25",
+    "FieldPattern": "",
+    "FieldDescription": "Additional Response Data"
+  },
+  {
+    "FieldNumber": "45",
+    "FieldType": "LLVAR",
+    "FieldLength": "76",
+    "FieldPattern": "",
+    "FieldDescription": "Track 1 Data"
+  },
+  {
+    "FieldNumber": "46",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Additional Data - ISO"
+  },
+  {
+    "FieldNumber": "47",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Additional Data - National"
+  },
+  {
+    "FieldNumber": "48",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Additional Data - Private"
+  },
+  {
+    "FieldNumber": "49",
+    "FieldType": "Fixed",
+    "FieldLength": "3",
+    "FieldPattern": "",
+    "FieldDescription": "Transaction Currency Code"
+  },
+  {
+    "FieldNumber": "50",
+    "FieldType": "Fixed",
+    "FieldLength": "3",
+    "FieldPattern": "",
+    "FieldDescription": "Settlement Currency Code"
+  },
+  {
+    "FieldNumber": "51",
+    "FieldType": "Fixed",
+    "FieldLength": "3",
+    "FieldPattern": "",
+    "FieldDescription": "Cardholder Billing Currency Code"
+  },
+  {
+    "FieldNumber": "52",
+    "FieldType": "Fixed",
+    "FieldLength": "16",
+    "FieldPattern": "",
+    "FieldDescription": "Personal Identification Number Data"
+  },
+  {
+    "FieldNumber": "53",
+    "FieldType": "Fixed",
+    "FieldLength": "16",
+    "FieldPattern": "",
+    "FieldDescription": "Security Related Control Information"
+  },
+  {
+    "FieldNumber": "54",
+    "FieldType": "LLLVAR",
+    "FieldLength": "120",
+    "FieldPattern": "",
+    "FieldDescription": "Additional Amounts"
+  },
+  {
+    "FieldNumber": "55",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "ICC Data"
+  },
+  {
+    "FieldNumber": "56",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved ISO"
+  },
+  {
+    "FieldNumber": "57",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved National"
+  },
+  {
+    "FieldNumber": "58",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved National"
+  },
+  {
+    "FieldNumber": "59",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved National"
+  },
+  {
+    "FieldNumber": "60",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved National"
+  },
+  {
+    "FieldNumber": "61",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved Private"
+  },
+  {
+    "FieldNumber": "62",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved Private"
+  },
+  {
+    "FieldNumber": "63",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved Private"
+  },
+  {
+    "FieldNumber": "64",
+    "FieldType": "Fixed",
+    "FieldLength": "8",
+    "FieldPattern": "",
+    "FieldDescription": "Message Authentication Code (MAC)"
+  },
+  {
+    "FieldNumber": "65",
+    "FieldType": "Fixed",
+    "FieldLength": "1",
+    "FieldPattern": "",
+    "FieldDescription": "Bitmap Extended"
+  },
+  {
+    "FieldNumber": "66",
+    "FieldType": "Fixed",
+    "FieldLength": "1",
+    "FieldPattern": "",
+    "FieldDescription": "Settlement Code"
+  },
+  {
+    "FieldNumber": "67",
+    "FieldType": "Fixed",
+    "FieldLength": "2",
+    "FieldPattern": "",
+    "FieldDescription": "Extended Payment Code"
+  },
+  {
+    "FieldNumber": "68",
+    "FieldType": "Fixed",
+    "FieldLength": "3",
+    "FieldPattern": "",
+    "FieldDescription": "Receiving Institution Country Code"
+  },
+  {
+    "FieldNumber": "69",
+    "FieldType": "Fixed",
+    "FieldLength": "3",
+    "FieldPattern": "",
+    "FieldDescription": "Settlement Institution Country Code"
+  },
+  {
+    "FieldNumber": "70",
+    "FieldType": "Fixed",
+    "FieldLength": "3",
+    "FieldPattern": "",
+    "FieldDescription": "Network Management Information Code"
+  },
+  {
+    "FieldNumber": "71",
+    "FieldType": "Fixed",
+    "FieldLength": "4",
+    "FieldPattern": "",
+    "FieldDescription": "Message Number"
+  },
+  {
+    "FieldNumber": "72",
+    "FieldType": "Fixed",
+    "FieldLength": "4",
+    "FieldPattern": "",
+    "FieldDescription": "Last Message Number"
+  },
+  {
+    "FieldNumber": "73",
+    "FieldType": "Fixed",
+    "FieldLength": "6",
+    "FieldPattern": "YYMMDD",
+    "FieldDescription": "Date Action"
+  },
+  {
+    "FieldNumber": "74",
+    "FieldType": "Fixed",
+    "FieldLength": "10",
+    "FieldPattern": "",
+    "FieldDescription": "Credits Number"
+  },
+  {
+    "FieldNumber": "75",
+    "FieldType": "Fixed",
+    "FieldLength": "10",
+    "FieldPattern": "",
+    "FieldDescription": "Credits Reversal Number"
+  },
+  {
+    "FieldNumber": "76",
+    "FieldType": "Fixed",
+    "FieldLength": "10",
+    "FieldPattern": "",
+    "FieldDescription": "Debits Number"
+  },
+  {
+    "FieldNumber": "77",
+    "FieldType": "Fixed",
+    "FieldLength": "10",
+    "FieldPattern": "",
+    "FieldDescription": "Debits Reversal Number"
+  },
+  {
+    "FieldNumber": "78",
+    "FieldType": "Fixed",
+    "FieldLength": "10",
+    "FieldPattern": "",
+    "FieldDescription": "Transfer Number"
+  },
+  {
+    "FieldNumber": "79",
+    "FieldType": "Fixed",
+    "FieldLength": "10",
+    "FieldPattern": "",
+    "FieldDescription": "Transfer Reversal Number"
+  },
+  {
+    "FieldNumber": "80",
+    "FieldType": "Fixed",
+    "FieldLength": "10",
+    "FieldPattern": "",
+    "FieldDescription": "Inquiries Number"
+  },
+  {
+    "FieldNumber": "81",
+    "FieldType": "Fixed",
+    "FieldLength": "10",
+    "FieldPattern": "",
+    "FieldDescription": "Authorizations Number"
+  },
+  {
+    "FieldNumber": "82",
+    "FieldType": "Fixed",
+    "FieldLength": "12",
+    "FieldPattern": "",
+    "FieldDescription": "Credits Processing Fee Amount"
+  },
+  {
+    "FieldNumber": "83",
+    "FieldType": "Fixed",
+    "FieldLength": "12",
+    "FieldPattern": "",
+    "FieldDescription": "Credits Transaction Fee Amount"
+  },
+  {
+    "FieldNumber": "84",
+    "FieldType": "Fixed",
+    "FieldLength": "12",
+    "FieldPattern": "",
+    "FieldDescription": "Debits Processing Fee Amount"
+  },
+  {
+    "FieldNumber": "85",
+    "FieldType": "Fixed",
+    "FieldLength": "12",
+    "FieldPattern": "",
+    "FieldDescription": "Debits Transaction Fee Amount"
+  },
+  {
+    "FieldNumber": "86",
+    "FieldType": "Fixed",
+    "FieldLength": "16",
+    "FieldPattern": "",
+    "FieldDescription": "Credits Amount"
+  },
+  {
+    "FieldNumber": "87",
+    "FieldType": "Fixed",
+    "FieldLength": "16",
+    "FieldPattern": "",
+    "FieldDescription": "Credits Reversal Amount"
+  },
+  {
+    "FieldNumber": "88",
+    "FieldType": "Fixed",
+    "FieldLength": "16",
+    "FieldPattern": "",
+    "FieldDescription": "Debits Amount"
+  },
+  {
+    "FieldNumber": "89",
+    "FieldType": "Fixed",
+    "FieldLength": "16",
+    "FieldPattern": "",
+    "FieldDescription": "Debits Reversal Amount"
+  },
+  {
+    "FieldNumber": "90",
+    "FieldType": "Fixed",
+    "FieldLength": "42",
+    "FieldPattern": "",
+    "FieldDescription": "Original Data Elements"
+  },
+  {
+    "FieldNumber": "91",
+    "FieldType": "Fixed",
+    "FieldLength": "1",
+    "FieldPattern": "",
+    "FieldDescription": "File Update Code"
+  },
+  {
+    "FieldNumber": "92",
+    "FieldType": "Fixed",
+    "FieldLength": "2",
+    "FieldPattern": "",
+    "FieldDescription": "File Security Code"
+  },
+  {
+    "FieldNumber": "93",
+    "FieldType": "Fixed",
+    "FieldLength": "5",
+    "FieldPattern": "",
+    "FieldDescription": "Response Indicator"
+  },
+  {
+    "FieldNumber": "94",
+    "FieldType": "Fixed",
+    "FieldLength": "7",
+    "FieldPattern": "",
+    "FieldDescription": "Service Indicator"
+  },
+  {
+    "FieldNumber": "95",
+    "FieldType": "Fixed",
+    "FieldLength": "42",
+    "FieldPattern": "",
+    "FieldDescription": "Replacement Amounts"
+  },
+  {
+    "FieldNumber": "96",
+    "FieldType": "Fixed",
+    "FieldLength": "8",
+    "FieldPattern": "",
+    "FieldDescription": "Message Security Code"
+  },
+  {
+    "FieldNumber": "97",
+    "FieldType": "Fixed",
+    "FieldLength": "17",
+    "FieldPattern": "",
+    "FieldDescription": "Amount, Net Settlement"
+  },
+  {
+    "FieldNumber": "98",
+    "FieldType": "Fixed",
+    "FieldLength": "25",
+    "FieldPattern": "",
+    "FieldDescription": "Payee"
+  },
+  {
+    "FieldNumber": "99",
+    "FieldType": "LLVAR",
+    "FieldLength": "11",
+    "FieldPattern": "",
+    "FieldDescription": "Settlement Institution Identification Code"
+  },
+  {
+    "FieldNumber": "100",
+    "FieldType": "LLVAR",
+    "FieldLength": "11",
+    "FieldPattern": "",
+    "FieldDescription": "Receiving Institution Identification Code"
+  },
+  {
+    "FieldNumber": "101",
+    "FieldType": "LLVAR",
+    "FieldLength": "17",
+    "FieldPattern": "",
+    "FieldDescription": "File Name"
+  },
+  {
+    "FieldNumber": "102",
+    "FieldType": "LLVAR",
+    "FieldLength": "28",
+    "FieldPattern": "",
+    "FieldDescription": "Account Identification 1"
+  },
+  {
+    "FieldNumber": "103",
+    "FieldType": "LLVAR",
+    "FieldLength": "28",
+    "FieldPattern": "",
+    "FieldDescription": "Account Identification 2"
+  },
+  {
+    "FieldNumber": "104",
+    "FieldType": "LLLVAR",
+    "FieldLength": "100",
+    "FieldPattern": "",
+    "FieldDescription": "Transaction Description"
+  },
+  {
+    "FieldNumber": "105",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved for ISO Use"
+  },
+  {
+    "FieldNumber": "106",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved for ISO Use"
+  },
+  {
+    "FieldNumber": "107",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved for ISO Use"
+  },
+  {
+    "FieldNumber": "108",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved for ISO Use"
+  },
+  {
+    "FieldNumber": "109",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved for ISO Use"
+  },
+  {
+    "FieldNumber": "110",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved for ISO Use"
+  },
+  {
+    "FieldNumber": "111",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved for ISO Use"
+  },
+  {
+    "FieldNumber": "112",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved for National Use"
+  },
+  {
+    "FieldNumber": "113",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved for National Use"
+  },
+  {
+    "FieldNumber": "114",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved for National Use"
+  },
+  {
+    "FieldNumber": "115",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved for National Use"
+  },
+  {
+    "FieldNumber": "116",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved for National Use"
+  },
+  {
+    "FieldNumber": "117",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved for National Use"
+  },
+  {
+    "FieldNumber": "118",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved for National Use"
+  },
+  {
+    "FieldNumber": "119",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved for National Use"
+  },
+  {
+    "FieldNumber": "120",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved for Private Use"
+  },
+  {
+    "FieldNumber": "121",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved for Private Use"
+  },
+  {
+    "FieldNumber": "122",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved for Private Use"
+  },
+  {
+    "FieldNumber": "123",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved for Private Use"
+  },
+  {
+    "FieldNumber": "124",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved for Private Use"
+  },
+  {
+    "FieldNumber": "125",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved for Private Use"
+  },
+  {
+    "FieldNumber": "126",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved for Private Use"
+  },
+  {
+    "FieldNumber": "127",
+    "FieldType": "LLLVAR",
+    "FieldLength": "999",
+    "FieldPattern": "",
+    "FieldDescription": "Reserved for Private Use"
+  },
+  {
+    "FieldNumber": "128",
+    "FieldType": "Fixed",
+    "FieldLength": "8",
+    "FieldPattern": "",
+    "FieldDescription": "Message Authentication Code"
+  }
+]

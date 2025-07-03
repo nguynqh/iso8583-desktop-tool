@@ -5,6 +5,8 @@ import {models} from '../models';
 
 export function FilterLog(arg1:string):Promise<Array<main.Message>>;
 
+export function ListTemplateFiles():Promise<Array<string>>;
+
 export function LoadTemplate(arg1:string):Promise<void>;
 
 export function ParseAndValidateMessage(arg1:string):Promise<models.ParsedMessage>;
