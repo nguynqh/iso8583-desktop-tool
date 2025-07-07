@@ -37,18 +37,20 @@ import { UserGuideDialog } from "@/components/user-guide-dialog"
 
 // import from backend
 import { FilterLog, ParseAndValidateMessage, ParseJsonMessage, ParseSimpleMessage, ListTemplateFiles } from "../../wailsjs/go/main/App"
-import { main, models } from "../../wailsjs/go/models";
+import { main, models, loader } from "../../wailsjs/go/models";
 import { ParsedMessageTable } from "@/components/ParsedMessageTable";
 import { SettingsDialog } from "@/components/settings-dialog";
 import { ViewTemplateDetail } from "@/components/view-tamplate-detail";
 import { get } from "http";
 import { set } from "date-fns";
+import { group } from "console";
 
 export default function ISO8583Parser() {
 
-    const [adTemplates, setAdTemplates] = useState<string[]>([]);
+    const [adTemplates, setAdTemplates] = useState<loader.TemplateFile[]>([]);
     const [selectedTemplate, setSelectedTemplate] = useState<string>("");
-
+    const [selectedGroup, setSelectedGroup] = useState(0);
+    const [selectedMTI, setSelectedMTI] = useState<string | null>(null);
 
     const handleSelectAdvancedTemplate = async (open: boolean) => {
         if (open) {
@@ -159,7 +161,7 @@ export default function ISO8583Parser() {
             description: 'Reversal Request'
         }
     ];
-    const [selectedGroupIndex, setSelectedGroupIndex] = useState(0);
+    // const [selectedGroupIndex, setSelectedGroupIndex] = useState(0);
 
     const testClick = () => {
         try {
@@ -368,17 +370,6 @@ export default function ISO8583Parser() {
                                         </Button>
                                     </div>
                                 </div>
-
-                                {/* <Separator /> */}
-
-                                {/* <div>
-                                    <Label>Thao tác nhanh</Label>
-                                    <div className="mt-2 text-sm text-gray-600 space-y-1">
-                                        <div>Ctrl + V: Dán log</div>
-                                        <div>Ctrl + Enter: Phân tích</div>
-                                        <div>Ctrl + S: Lưu kết quả</div>
-                                    </div>
-                                </div> */}
                             </CardContent>
                         </Card>
                     </div>
@@ -394,26 +385,6 @@ export default function ISO8583Parser() {
                                     <CardDescription className="pt-1">Nhập log cần phân tích thông qua các cách sau</CardDescription>
                                 </div>
                                 <div className="ml-4 flex items-center gap-1">
-                                    {/* {templatesLoading ? (
-                                        <div className="text-sm text-gray-500">Loading templates...</div>
-                                    ) : templatesError ? (
-                                        <div className="text-sm text-red-500">Error: {templatesError}</div>
-                                    ) : (
-                                        <>
-                                            <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
-                                                <SelectTrigger className="w-40">
-                                                    <SelectValue placeholder="Chọn template" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {templates.map((template) => (
-                                                        <SelectItem key={template.fileName} value={template.fileName}>
-                                                            {template.name}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        </>
-                                    )} */}
                                     Schema đang sử dụng: ISO8583 (128 fields)
                                     <Button
                                         variant="ghost"
@@ -456,7 +427,7 @@ export default function ISO8583Parser() {
                                             ${checked ? "max-h-[500px] opacity-100 mt-2" : "max-h-0 opacity-0"}
                                             `}
                                         >
-                                            <div className="flex flex-col gap-1">
+                                            <div className="flex flex-col gap-1 border">
                                                 <Label htmlFor="template-check" className="text-sm font-semibold">Template kiểm tra</Label>
                                                 {templatesLoading ? (
                                                     <div className="text-sm text-gray-500">Loading templates...</div>
@@ -464,7 +435,6 @@ export default function ISO8583Parser() {
                                                     <div className="text-sm text-red-500">Error: {templatesError}</div>
                                                 ) : (
                                                     <>
-                                                        
                                                         <div className="flex items-center">
                                                             <Select value={selectedTemplate} onValueChange={setSelectedTemplate} onOpenChange={handleSelectAdvancedTemplate}>
                                                                 <SelectTrigger>
@@ -473,8 +443,8 @@ export default function ISO8583Parser() {
                                                                 <SelectContent>
                                                                     {adTemplates && adTemplates.length > 0 ? (
                                                                         adTemplates.map((template) => (
-                                                                            <SelectItem key={template} value={template}>
-                                                                                {template}
+                                                                            <SelectItem key={template.name} value={template.name}>
+                                                                                {template.name.replace(".json", "")}
                                                                             </SelectItem>
                                                                         ))
                                                                     ) : (
@@ -496,82 +466,137 @@ export default function ISO8583Parser() {
                                                                 <Info className="h-4 w-4" />
                                                             </Button>
                                                         </div>
+
+                                                        {/* sumary data template */}
                                                         {selectedTemplate && (() => {
                                                             const data = getSelectedTemplateData();
-                                                            const fieldNumbers = data?.map((field: any) => `F${field.FieldNumber}`).join(', ') || '';
-                                                            return data?.length > 0 ? (
-                                                                <div className="ml-3 text-xs text-gray-600">
-                                                                    <span className="font-medium">
-                                                                        Có tổng {data.length} fields: {fieldNumbers}
-                                                                    </span>
-                                                                </div>
-                                                            ) : null;
+                                                            // const mtiList = data?.map((item: any) => `mti=${item.MTI}`).join(', ') || '';
+                                                            const mtiList = data?.map((item:any) => `MTI=${item.MTI}`).join(', ')
+
+                                                            const mtiListt = adTemplates.length
+                                                            if (!data || data.length === 0) return null;
+
+                                                            return (
+                                                                <>
+                                                                    <div className="ml-3 mt-1 mb-1 text-xs text-gray-600">
+                                                                        <span className="font-medium">
+                                                                            Có tổng {data.length} nhóm: {mtiListt}
+                                                                        </span>
+                                                                    </div>
+                                                                
+                                                                    <div className="flex items-center gap-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                                                        <Label className="text-sm font-medium text-blue-700">
+                                                                            Cụm thông điệp:
+                                                                        </Label>
+                                                                        <Select 
+                                                                            value={selectedMTI || ""}
+                                                                            onValueChange={setSelectedMTI}
+                                                                        >
+                                                                            <SelectTrigger className="w-auto min-w-[250px] bg-white">
+                                                                                <SelectValue placeholder="Chọn MTI để xem" />
+                                                                            </SelectTrigger>
+                                                                            <SelectContent>
+                                                                                {data?.map((item: any, idx: any) => (
+                                                                                    <SelectItem key={idx} value={idx.toString()}>
+                                                                                    MTI = {item.MTI}
+                                                                                    </SelectItem>
+                                                                                ))}
+                                                                            </SelectContent>
+                                                                        </Select>
+                                                                    </div>
+
+                                                                    {/* Show detail group selected */}
+                                                                    {selectedMTI !== null && (() => {
+                                                                        const currentData = data[Number(selectedMTI)];
+                                                                        return (
+                                                                            <div className="grid grid-cols-3 gap-4 p-3 bg-gray-50 rounded-lg">
+                                                                                <div className="text-center">
+                                                                                    <div className="font-medium text-blue-700">Kênh xử lý</div>
+                                                                                    <div className="text-sm">{currentData.Channel}</div>
+                                                                                </div>
+                                                                                <div className="text-center">
+                                                                                    <div className="font-medium text-green-700">MTI</div>
+                                                                                    <div className="text-sm">{currentData.MTI}</div>
+                                                                                </div>
+                                                                                <div className="text-center">
+                                                                                    <div className="font-medium text-purple-700">PCODE</div>
+                                                                                    <div className="text-sm">
+                                                                                        {selectedTemplate.replace(".json", "") || 'N/A'}
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        );
+                                                                    })()}
+                                                                </>
+                                                            );
                                                         })()}
+
+
+
+                                                        {/* {groupIdx && (() => {
+                                                            const data = getSelectedTemplateData();
+                                                            const group = data?.map((item:any) => item.Channel)[groupIdx];
+                                                            return (
+                                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 items-center">
+                                                                    <div className="flex flex-col gap-2">
+                                                                        <Label htmlFor="filter-channel" className="text-sm">Kênh xử lý</Label>
+                                                                        <Input
+                                                                            id="filter-channel"
+                                                                            type="text"
+                                                                            className="w-full"
+                                                                            value={group.Channel || ""}
+                                                                            readOnly
+                                                                            placeholder="Kênh xử lý (ví dụ: CSBIST)"
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                            )
+                                                        })} */}
                                                     </>
                                                 )}
                                             </div>
 
 
-                                            {messageGroups.length > 1 && (
-                                                <div className="flex items-center gap-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                                                    <Label className="text-sm font-medium text-blue-700">
-                                                        Nhóm message:
-                                                    </Label>
-                                                    <Select 
-                                                        value={selectedGroupIndex.toString()} 
-                                                        onValueChange={(value) => setSelectedGroupIndex(parseInt(value))}
-                                                    >
-                                                        <SelectTrigger className="w-auto min-w-[250px] bg-white">
-                                                            <SelectValue />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {messageGroups.map((group, index) => (
-                                                                <SelectItem key={index} value={index.toString()}>
-                                                                    <div className="flex items-center gap-2">
-                                                                        <Badge variant="secondary" className="text-xs">
-                                                                            {group.mti}
-                                                                        </Badge>
-                                                                        <span>{group.description || `${group.channel} - ${group.mti}`}</span>
-                                                                    </div>
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <Badge variant="outline" className="ml-auto">
-                                                        {selectedGroupIndex + 1}/{messageGroups.length}
-                                                    </Badge>
-                                                </div>
-                                            )}
+                                            {/* {selectedTemplate && (
+                                                
 
-                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 items-center">
-                                                <div className="flex flex-col gap-2">
-                                                    <Label htmlFor="filter-channel" className="text-sm">Kênh xử lý</Label>
-                                                    <Input
-                                                        id="filter-channel"
-                                                        type="text"
-                                                        className="w-full"
-                                                        placeholder="Nhập kênh xử lý (ví dụ: CSBIST)"
-                                                    />
-                                                </div>
-                                                <div className="flex flex-col gap-2">
-                                                    <Label htmlFor="filter-mti" className="text-sm">MTI</Label>
-                                                    <Input
-                                                        id="filter-mti"
-                                                        type="text"
-                                                        className="w-full"
-                                                        placeholder="Nhập MTI (ví dụ: 0200)"
-                                                    />
-                                                </div>
-                                                <div className="flex flex-col gap-2">
-                                                    <Label htmlFor="filter-pcode" className="text-sm">PCODE</Label>
-                                                    <Input
-                                                        id="filter-pcode"
-                                                        type="text"
-                                                        className="w-full"
-                                                        placeholder="Nhập PCODE (ví dụ: 010000)"
-                                                    />
-                                                </div>
-                                            </div>
+                                            
+                                                {selectedGroup && (
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 items-center">
+                                                        <div className="flex flex-col gap-2">
+                                                            <Label htmlFor="filter-channel" className="text-sm">Kênh xử lý</Label>
+                                                            <Input
+                                                                id="filter-channel"
+                                                                type="text"
+                                                                className="w-full"
+                                                                value=""
+                                                                readOnly
+                                                                placeholder="Nhập kênh xử lý (ví dụ: CSBIST)"
+                                                            />
+                                                        </div>
+                                                        <div className="flex flex-col gap-2">
+                                                            <Label htmlFor="filter-mti" className="text-sm">MTI</Label>
+                                                            <Input
+                                                                id="filter-mti"
+                                                                type="text"
+                                                                className="w-full"
+                                                                readOnly
+                                                                placeholder="MTI (ví dụ: 0200, 0210, 0400)"
+                                                            />
+                                                        </div>
+                                                        <div className="flex flex-col gap-2">
+                                                            <Label htmlFor="filter-pcode" className="text-sm">PCODE</Label>
+                                                            <Input
+                                                                id="filter-pcode"
+                                                                type="text"
+                                                                className="w-full"
+                                                                readOnly
+                                                                placeholder="PCODE (ví dụ: 010000)"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            )} */}
                                         </div> 
                                     </div>
                                     <Separator className="my-2" />

@@ -152,7 +152,7 @@ func (a *App) LoadTemplate(templatePath string) error {
 }
 
 // Interactive File --------------------------------------------------
-func (a *App) ListTemplateFiles() ([]string, error) {
+func (a *App) ListTemplateFiles() ([]loader.TemplateFile, error) {
 	rs, err := loader.ListTemplateFiles("internal/templates/")
 	fmt.Printf("Found %d template files\n", len(rs))
 	return rs, err

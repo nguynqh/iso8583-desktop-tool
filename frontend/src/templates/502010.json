@@ -1,4 +1,3 @@
-
 [
     {
         "MTI": "0200",
@@ -23,7 +22,7 @@
                 "FieldType": "Fixed",
                 "FieldLength": "12",
                 "FieldPattern": "",
-            "FieldDescription": "Transaction Amount"
+                "FieldDescription": "Transaction Amount"
             },
             {
                 "FieldNumber": "7",
@@ -86,7 +85,7 @@
                 "FieldType": "Fixed",
                 "FieldLength": "10",
                 "FieldPattern": "MMDDhhmmss",
-            "FieldDescription": "Transmission Date and Time"
+                "FieldDescription": "Transmission Date and Time"
             },
             {
                 "FieldNumber": "11",

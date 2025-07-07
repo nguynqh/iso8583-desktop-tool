@@ -1,8 +1,7 @@
-
 [
     {
-        "MTI": "0200",
-        "Channel": "CSBISTT",
+        "MTI": "0400",
+        "Channel": "CSBIST",
         "Fields": [
             {
                 "FieldNumber": "2",
@@ -19,13 +18,6 @@
                 "FieldDescription": "Processing Code"
             },
             {
-                "FieldNumber": "4",
-                "FieldType": "Fixed",
-                "FieldLength": "12",
-                "FieldPattern": "",
-            "FieldDescription": "Transaction Amount"
-            },
-            {
                 "FieldNumber": "7",
                 "FieldType": "Fixed",
                 "FieldLength": "10",
@@ -40,25 +32,17 @@
                 "FieldDescription": "System Trace Audit Number (STAN)"
             },
             {
-                "FieldNumber": "12",
-                "FieldType": "Fixed",
-                "FieldLength": "6",
-                "FieldPattern": "hhmmss",
-                "FieldDescription": "Local Transaction Time"
-            },
-            {
-                "FieldNumber": "13",
-                "FieldType": "Fixed",
-                "FieldLength": "4",
-                "FieldPattern": "MMDD",
-                "FieldDescription": "Local Transaction Date"
+                "FieldNumber": "32",
+                "FieldType": "LLVAR",
+                "FieldLength": "11",
+                "FieldPattern": "",
+                "FieldDescription": "Acquiring Institution Identification Code"
             }
-        ]   
+        ]
     },
     {
-
-        "MTI": "0210",
-        "Channel": "IST",
+        "MTI": "0410",
+        "Channel": "CSBIST",
         "Fields": [
             {
                 "FieldNumber": "2",
@@ -82,11 +66,31 @@
                 "FieldDescription": "Transaction Amount"
             },
             {
+                "FieldNumber": "39",
+                "FieldType": "Fixed",
+                "FieldLength": "2",
+                "FieldPattern": "",
+                "FieldDescription": "Response Code"
+            },
+            {
+                "FieldNumber": "37",
+                "FieldType": "Fixed",
+                "FieldLength": "12",
+                "FieldPattern": "",
+                "FieldDescription": "Retrieval Reference Number"
+            }
+        ]
+    },
+    {
+        "MTI": "0800",
+        "Channel": "CSBIST",
+        "Fields": [
+            {
                 "FieldNumber": "7",
                 "FieldType": "Fixed",
                 "FieldLength": "10",
                 "FieldPattern": "MMDDhhmmss",
-            "FieldDescription": "Transmission Date and Time"
+                "FieldDescription": "Transmission Date and Time"
             },
             {
                 "FieldNumber": "11",
@@ -96,18 +100,11 @@
                 "FieldDescription": "System Trace Audit Number (STAN)"
             },
             {
-                "FieldNumber": "12",
+                "FieldNumber": "70",
                 "FieldType": "Fixed",
-                "FieldLength": "6",
-                "FieldPattern": "hhmmss",
-                "FieldDescription": "Local Transaction Time"
-            },
-            {
-                "FieldNumber": "13",
-                "FieldType": "Fixed",
-                "FieldLength": "4",
-                "FieldPattern": "MMDD",
-                "FieldDescription": "Local Transaction Date"
+                "FieldLength": "3",
+                "FieldPattern": "",
+                "FieldDescription": "Network Management Information Code"
             }
         ]
     }
